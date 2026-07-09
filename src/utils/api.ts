@@ -34,7 +34,11 @@ async function apiRequest<T>(url: string, options: RequestInit = {}): Promise<T>
     headers.set('Content-Type', 'application/json');
   }
 
-  const response = await fetch(url, {
+  const rawApiUrl = import.meta.env.VITE_API_URL || '';
+  const API_BASE_URL = rawApiUrl.endsWith('/') ? rawApiUrl.slice(0, -1) : rawApiUrl;
+  const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
+
+  const response = await fetch(fullUrl, {
     ...options,
     headers
   });
@@ -134,7 +138,9 @@ export const api = {
       method: 'DELETE'
     }),
   getFileUrl: (noteId: string, download = false) => {
-    return `/api/notes/${noteId}/file${download ? '?download=true' : ''}`;
+    const rawApiUrl = import.meta.env.VITE_API_URL || '';
+    const API_BASE_URL = rawApiUrl.endsWith('/') ? rawApiUrl.slice(0, -1) : rawApiUrl;
+    return `${API_BASE_URL}/api/notes/${noteId}/file${download ? '?download=true' : ''}`;
   },
 
   // --- VIDEOS ---
@@ -233,7 +239,9 @@ export const api = {
       method: 'DELETE'
     }),
   getSubmissionFileUrl: (submissionId: string) => {
-    return `/api/submissions/${submissionId}/file`;
+    const rawApiUrl = import.meta.env.VITE_API_URL || '';
+    const API_BASE_URL = rawApiUrl.endsWith('/') ? rawApiUrl.slice(0, -1) : rawApiUrl;
+    return `${API_BASE_URL}/api/submissions/${submissionId}/file`;
   },
 
   // --- ATTENDANCE ---

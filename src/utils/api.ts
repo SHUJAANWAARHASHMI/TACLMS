@@ -29,7 +29,7 @@ export function getApiBaseUrl(): string {
     // If running on an external host (like Vercel) and no custom API URL is configured,
     // automatically route back to our hosted backend server so everything works immediately.
     if (host && !host.includes('localhost') && !host.includes('127.0.0.1') && !host.includes('ais-dev-')) {
-      rawApiUrl = 'https://ais-dev-cuoieywfscjzkq2qhlojje-457798443138.asia-southeast1.run.app';
+      rawApiUrl = 'https://ais-pre-cuoieywfscjzkq2qhlojje-457798443138.asia-southeast1.run.app';
     }
   }
   

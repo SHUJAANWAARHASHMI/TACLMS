@@ -210,19 +210,33 @@ const emptyDB: DBStructure = {
   attendance: []
 };
 
+let lmsStateTableExists = true;
+
 export async function saveToSupabase(data: DBStructure) {
   try {
-    // 1. Save backup JSON to lms_state
-    const { error: backupError } = await supabase
-      .from('lms_state')
-      .upsert({
-        key: 'taclms_database',
-        value: data,
-        updated_at: new Date().toISOString()
-      }, { onConflict: 'key' });
+    // 1. Save backup JSON to lms_state if supported
+    if (lmsStateTableExists) {
+      try {
+        const { error: backupError } = await supabase
+          .from('lms_state')
+          .upsert({
+            key: 'taclms_database',
+            value: data,
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'key' });
 
-    if (backupError) {
-      console.warn('Failed to save state backup to Supabase (is "lms_state" created?):', backupError.message);
+        if (backupError) {
+          if (backupError.message?.includes('does not exist') || backupError.message?.includes('schema cache') || backupError.code === 'PGRST116') {
+            lmsStateTableExists = false;
+            console.log('lms_state table does not exist in Supabase. Bypassing state backup and using individual tables only.');
+          } else {
+            console.warn('Failed to save state backup to lms_state:', backupError.message);
+          }
+        }
+      } catch (backupErr: any) {
+        lmsStateTableExists = false;
+        console.log('lms_state table missing or inaccessible. Bypassing state backup.');
+      }
     }
 
     // 2. Save/upsert individual tables
@@ -268,49 +282,61 @@ export async function syncWithSupabase() {
     }
 
     // Otherwise, fallback to the single lms_state row (backup state)
-    console.log('Individual tables not fully set up. Falling back to lms_state backup...');
-    const { data, error } = await supabase
-      .from('lms_state')
-      .select('*')
-      .eq('key', 'taclms_database')
-      .single();
+    if (lmsStateTableExists) {
+      console.log('Individual tables not fully set up. Falling back to lms_state backup...');
+      const { data, error } = await supabase
+        .from('lms_state')
+        .select('*')
+        .eq('key', 'taclms_database')
+        .single();
 
-    if (error) {
-      if (error.code === 'PGRST116' || error.message?.includes('0 rows')) {
-        console.log('lms_state table found, but taclms_database key is missing. Initializing in Supabase...');
-        const currentDB = getDB();
-        await saveToSupabase(currentDB);
+      if (error) {
+        if (error.message?.includes('does not exist') || error.message?.includes('schema cache')) {
+          lmsStateTableExists = false;
+        }
+
+        if (error.code === 'PGRST116' || error.message?.includes('0 rows')) {
+          console.log('lms_state table found, but taclms_database key is missing. Initializing in Supabase...');
+          const currentDB = getDB();
+          await saveToSupabase(currentDB);
+          supabaseStatus.connected = true;
+          supabaseStatus.lastSync = new Date().toISOString();
+          supabaseStatus.error = null;
+          supabaseStatus.tableChecked = true;
+        } else {
+          console.warn('Could not read from Supabase:', error.message);
+          supabaseStatus.connected = false;
+          
+          const isRlsError = error.message.toLowerCase().includes('row-level security') || error.message.toLowerCase().includes('rls');
+          if (isRlsError) {
+            supabaseStatus.error = `Row-Level Security (RLS) is blocking access. Please make sure RLS is disabled on your tables or you have supplied the "SUPABASE_SERVICE_KEY" in settings to bypass RLS.`;
+          } else {
+            supabaseStatus.error = `Database tables not found. Please run the SQL schema in your Supabase SQL Editor to create the 17 tables (including users & user_credentials).`;
+          }
+          supabaseStatus.tableChecked = true;
+        }
+        return;
+      }
+
+      if (data && data.value) {
+        console.log('Successfully loaded database state from Supabase backup (lms_state)!');
+        fs.writeFileSync(DB_PATH, JSON.stringify(data.value, null, 2), 'utf-8');
         supabaseStatus.connected = true;
         supabaseStatus.lastSync = new Date().toISOString();
         supabaseStatus.error = null;
         supabaseStatus.tableChecked = true;
-      } else {
-        console.warn('Could not read from Supabase:', error.message);
-        supabaseStatus.connected = false;
-        
-        const isRlsError = error.message.toLowerCase().includes('row-level security') || error.message.toLowerCase().includes('rls');
-        if (isRlsError) {
-          supabaseStatus.error = `Row-Level Security (RLS) is blocking access. Please make sure RLS is disabled on your tables or you have supplied the "SUPABASE_SERVICE_KEY" in settings to bypass RLS.`;
-        } else {
-          supabaseStatus.error = `Database tables not found. Please run the SQL schema in your Supabase SQL Editor to create the 17 tables (including users & user_credentials).`;
-        }
-        supabaseStatus.tableChecked = true;
+
+        // Migrate this data into the individual tables so they are no longer empty!
+        console.log('Migrating data from backup into individual tables...');
+        await saveToIndividualTables(data.value);
+        return;
       }
-      return;
     }
 
-    if (data && data.value) {
-      console.log('Successfully loaded database state from Supabase backup (lms_state)!');
-      fs.writeFileSync(DB_PATH, JSON.stringify(data.value, null, 2), 'utf-8');
-      supabaseStatus.connected = true;
-      supabaseStatus.lastSync = new Date().toISOString();
-      supabaseStatus.error = null;
-      supabaseStatus.tableChecked = true;
-
-      // Migrate this data into the individual tables so they are no longer empty!
-      console.log('Migrating data from backup into individual tables...');
-      await saveToIndividualTables(data.value);
-    }
+    // If we reach here and backup table was bypassed or also not found
+    supabaseStatus.connected = false;
+    supabaseStatus.error = `Database tables not found. Please run the SQL schema in your Supabase SQL Editor to create the 17 tables (including users & user_credentials).`;
+    supabaseStatus.tableChecked = true;
   } catch (err: any) {
     console.error('Supabase synchronization error:', err);
     supabaseStatus.connected = false;

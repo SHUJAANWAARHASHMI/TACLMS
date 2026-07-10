@@ -10,7 +10,7 @@ import {
   Bookmark, Progress, AuditLog, Attendance 
 } from './src/types';
 
-const app = express();
+export const app = express();
 const PORT = 3000;
 
 app.use(express.json());
@@ -1338,6 +1338,12 @@ app.post('/api/supabase-sync', requireAdmin, async (req, res) => {
 // ==================== VITE DEVELOPMENT & PROD CONFIG ====================
 
 async function startServer() {
+  if (process.env.VERCEL) {
+    // On Vercel, the express app is used solely as a serverless API handler.
+    // Static file serving and SPA routing are handled natively by vercel.json rewrites.
+    return;
+  }
+
   // Sync with Supabase on boot
   console.log('Initializing Supabase synchronization...');
   syncWithSupabase().catch(err => {

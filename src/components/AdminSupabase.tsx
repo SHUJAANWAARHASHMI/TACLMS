@@ -41,14 +41,20 @@ export default function AdminSupabase() {
     }
   };
 
-  const sqlCode = `CREATE TABLE lms_state (
+  const sqlCode = `CREATE TABLE IF NOT EXISTS lms_state (
   key TEXT PRIMARY KEY,
   value JSONB NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Disable Row Level Security (RLS) so the app can sync the state
-ALTER TABLE lms_state DISABLE ROW LEVEL SECURITY;`;
+-- 17. User Credentials Table (for password authentication)
+CREATE TABLE IF NOT EXISTS user_credentials (
+  id TEXT PRIMARY KEY,
+  user_id TEXT REFERENCES users(id) ON DELETE CASCADE,
+  email TEXT UNIQUE NOT NULL,
+  password_text TEXT NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);`;
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(sqlCode);

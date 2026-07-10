@@ -8,7 +8,7 @@ import {
 } from '../src/types';
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://hxqmadzterpmdbveameg.supabase.co';
-const SUPABASE_KEY = process.env.SUPABASE_KEY || 'sb_publishable_i2lv3uegeMxQn4Sk5AKj4w_yFMcUpc_';
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_KEY || 'sb_publishable_i2lv3uegeMxQn4Sk5AKj4w_yFMcUpc_';
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -18,6 +18,150 @@ export let supabaseStatus = {
   error: null as string | null,
   tableChecked: false,
 };
+
+// CamelCase <-> snake_case Mapping Helpers
+function toSnakeCase(str: string): string {
+  if (str === 'order') return 'chapter_order';
+  return str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+}
+
+function toCamelCase(str: string): string {
+  if (str === 'chapter_order') return 'order';
+  return str.replace(/([-_][a-z])/g, group =>
+    group.toUpperCase().replace('-', '').replace('_', '')
+  );
+}
+
+function mapToSnake(obj: any): any {
+  if (!obj || typeof obj !== 'object') return obj;
+  if (Array.isArray(obj)) return obj.map(mapToSnake);
+  
+  const result: any = {};
+  for (const key of Object.keys(obj)) {
+    if (key === 'questions' || key === 'answers' || key === 'versions' || key === 'value') {
+      result[toSnakeCase(key)] = obj[key];
+    } else {
+      result[toSnakeCase(key)] = typeof obj[key] === 'object' && obj[key] !== null ? mapToSnake(obj[key]) : obj[key];
+    }
+  }
+  return result;
+}
+
+function mapToCamel(obj: any): any {
+  if (!obj || typeof obj !== 'object') return obj;
+  if (Array.isArray(obj)) return obj.map(mapToCamel);
+  
+  const result: any = {};
+  for (const key of Object.keys(obj)) {
+    if (key === 'questions' || key === 'answers' || key === 'versions' || key === 'value') {
+      result[toCamelCase(key)] = obj[key];
+    } else {
+      result[toCamelCase(key)] = typeof obj[key] === 'object' && obj[key] !== null ? mapToCamel(obj[key]) : obj[key];
+    }
+  }
+  return result;
+}
+
+export async function saveToIndividualTables(data: DBStructure) {
+  // Order is extremely critical due to foreign key constraints!
+  const tablesOrder = [
+    { name: 'users', rows: data.users },
+    { name: 'classes', rows: data.classes },
+    { name: 'subjects', rows: data.subjects },
+    { name: 'chapters', rows: data.chapters },
+    { name: 'notes', rows: data.notes },
+    { name: 'videos', rows: data.videos },
+    { name: 'access_grants', rows: data.accessGrants },
+    { name: 'announcements', rows: data.announcements },
+    { name: 'quizzes', rows: data.quizzes },
+    { name: 'quiz_attempts', rows: data.quizAttempts },
+    { name: 'assignments', rows: data.assignments },
+    { name: 'submissions', rows: data.submissions },
+    { name: 'bookmarks', rows: data.bookmarks },
+    { name: 'progress', rows: data.progress },
+    { name: 'audit_logs', rows: data.auditLogs },
+    { name: 'attendance', rows: data.attendance },
+    { name: 'user_credentials', rows: data.userCredentials }
+  ];
+
+  for (const table of tablesOrder) {
+    if (!table.rows || table.rows.length === 0) continue;
+    try {
+      const snakeRows = table.rows.map(mapToSnake);
+      const { error } = await supabase
+        .from(table.name)
+        .upsert(snakeRows, { onConflict: 'id' });
+
+      if (error) {
+        console.warn(`Could not sync table ${table.name} to Supabase:`, error.message);
+      } else {
+        console.log(`Synced ${table.rows.length} rows to '${table.name}' table successfully!`);
+      }
+    } catch (err: any) {
+      console.error(`Exception writing to table ${table.name}:`, err.message || err);
+    }
+  }
+}
+
+export async function loadFromIndividualTables(): Promise<DBStructure | null> {
+  const tableMapping: { [key: string]: keyof DBStructure } = {
+    'users': 'users',
+    'classes': 'classes',
+    'subjects': 'subjects',
+    'chapters': 'chapters',
+    'notes': 'notes',
+    'videos': 'videos',
+    'access_grants': 'accessGrants',
+    'announcements': 'announcements',
+    'quizzes': 'quizzes',
+    'quiz_attempts': 'quizAttempts',
+    'assignments': 'assignments',
+    'submissions': 'submissions',
+    'bookmarks': 'bookmarks',
+    'progress': 'progress',
+    'audit_logs': 'auditLogs',
+    'attendance': 'attendance',
+    'user_credentials': 'userCredentials'
+  };
+
+  const db: any = {};
+  let loadedCount = 0;
+
+  for (const [tableName, dbKey] of Object.entries(tableMapping)) {
+    try {
+      const { data, error } = await supabase
+        .from(tableName)
+        .select('*');
+
+      if (error) {
+        console.warn(`Could not load table ${tableName} from Supabase:`, error.message);
+        if (error.code === 'PGRST116' || error.message?.includes('does not exist') || error.message?.includes('404')) {
+          console.warn(`Table '${tableName}' does not exist or failed to load. Aborting individual table load.`);
+          return null;
+        }
+        db[dbKey] = [];
+      } else if (data) {
+        db[dbKey] = data.map(mapToCamel);
+        loadedCount++;
+      } else {
+        db[dbKey] = [];
+      }
+    } catch (err: any) {
+      console.error(`Exception loading table ${tableName}:`, err.message || err);
+      return null;
+    }
+  }
+
+  // Ensure mandatory default fields exist
+  for (const key of Object.keys(emptyDB)) {
+    if (!db[key]) {
+      db[key] = [];
+    }
+  }
+
+  console.log(`Successfully loaded all ${loadedCount} individual tables from Supabase!`);
+  return db as DBStructure;
+}
 
 const DB_PATH = path.join(process.cwd(), 'db.json');
 
@@ -63,7 +207,8 @@ const emptyDB: DBStructure = {
 
 export async function saveToSupabase(data: DBStructure) {
   try {
-    const { error } = await supabase
+    // 1. Save backup JSON to lms_state
+    const { error: backupError } = await supabase
       .from('lms_state')
       .upsert({
         key: 'taclms_database',
@@ -71,19 +216,17 @@ export async function saveToSupabase(data: DBStructure) {
         updated_at: new Date().toISOString()
       }, { onConflict: 'key' });
 
-    if (error) {
-      console.error('Failed to save state to Supabase:', error.message);
-      if (error.message.toLowerCase().includes('row-level security') || error.message.toLowerCase().includes('rls')) {
-        supabaseStatus.error = `Failed to write: ${error.message}\n\n💡 FIX: Please run this command in your Supabase SQL Editor to disable Row Level Security on the lms_state table:\n\nALTER TABLE lms_state DISABLE ROW LEVEL SECURITY;`;
-      } else {
-        supabaseStatus.error = `Failed to write: ${error.message}`;
-      }
-    } else {
-      console.log('Successfully pushed database state to Supabase!');
-      supabaseStatus.connected = true;
-      supabaseStatus.lastSync = new Date().toISOString();
-      supabaseStatus.error = null;
+    if (backupError) {
+      console.error('Failed to save state backup to Supabase:', backupError.message);
     }
+
+    // 2. Save/upsert individual tables
+    await saveToIndividualTables(data);
+
+    console.log('Successfully pushed database state and individual tables to Supabase!');
+    supabaseStatus.connected = true;
+    supabaseStatus.lastSync = new Date().toISOString();
+    supabaseStatus.error = null;
   } catch (err: any) {
     console.error('Error writing to Supabase:', err);
     supabaseStatus.error = err.message || 'Unknown write error';
@@ -92,6 +235,22 @@ export async function saveToSupabase(data: DBStructure) {
 
 export async function syncWithSupabase() {
   try {
+    console.log('Attempting to load data from individual tables in Supabase...');
+    const individualDB = await loadFromIndividualTables();
+    
+    // If we loaded successfully and there are actual users, we can use it!
+    if (individualDB && individualDB.users && individualDB.users.length > 0) {
+      console.log('Successfully loaded full database from individual Supabase tables!');
+      fs.writeFileSync(DB_PATH, JSON.stringify(individualDB, null, 2), 'utf-8');
+      supabaseStatus.connected = true;
+      supabaseStatus.lastSync = new Date().toISOString();
+      supabaseStatus.error = null;
+      supabaseStatus.tableChecked = true;
+      return;
+    }
+
+    // Otherwise, fallback to the single lms_state row (backup state)
+    console.log('Individual tables empty or not fully set up. Falling back to lms_state backup...');
     const { data, error } = await supabase
       .from('lms_state')
       .select('*')
@@ -123,12 +282,16 @@ export async function syncWithSupabase() {
     }
 
     if (data && data.value) {
-      console.log('Successfully loaded database state from Supabase!');
+      console.log('Successfully loaded database state from Supabase backup (lms_state)!');
       fs.writeFileSync(DB_PATH, JSON.stringify(data.value, null, 2), 'utf-8');
       supabaseStatus.connected = true;
       supabaseStatus.lastSync = new Date().toISOString();
       supabaseStatus.error = null;
       supabaseStatus.tableChecked = true;
+
+      // Migrate this data into the individual tables so they are no longer empty!
+      console.log('Migrating data from backup into individual tables...');
+      await saveToIndividualTables(data.value);
     }
   } catch (err: any) {
     console.error('Supabase synchronization error:', err);

@@ -84,6 +84,7 @@ export async function saveToIndividualTables(data: DBStructure) {
     { name: 'user_credentials', rows: data.userCredentials }
   ];
 
+  const errors: string[] = [];
   for (const table of tablesOrder) {
     if (!table.rows || table.rows.length === 0) continue;
     try {
@@ -94,13 +95,16 @@ export async function saveToIndividualTables(data: DBStructure) {
 
       if (error) {
         console.warn(`Could not sync table ${table.name} to Supabase:`, error.message);
+        errors.push(`${table.name}: ${error.message}`);
       } else {
         console.log(`Synced ${table.rows.length} rows to '${table.name}' table successfully!`);
       }
     } catch (err: any) {
       console.warn(`Exception writing to table ${table.name}:`, err.message || err);
+      errors.push(`${table.name}: ${err.message || err}`);
     }
   }
+  return errors;
 }
 
 export async function loadFromIndividualTables(): Promise<DBStructure | null> {
@@ -240,7 +244,15 @@ export async function saveToSupabase(data: DBStructure) {
     }
 
     // 2. Save/upsert individual tables
-    await saveToIndividualTables(data);
+    const syncErrors = await saveToIndividualTables(data);
+    if (syncErrors.length > 0) {
+      const isRls = syncErrors.some(e => e.toLowerCase().includes('row-level security') || e.toLowerCase().includes('rls') || e.toLowerCase().includes('policy'));
+      if (isRls) {
+        throw new Error(`Row Level Security (RLS) is blocking data saving on Supabase tables. Please copy the complete SQL script from the setup panel and run it in your Supabase SQL Editor to disable RLS for all tables.\n\nFailed tables:\n- ${syncErrors.join('\n- ')}`);
+      } else {
+        throw new Error(`Failed to write tables to Supabase:\n- ${syncErrors.join('\n- ')}`);
+      }
+    }
 
     console.log('Successfully pushed database state and individual tables to Supabase!');
     supabaseStatus.connected = true;
@@ -249,6 +261,7 @@ export async function saveToSupabase(data: DBStructure) {
   } catch (err: any) {
     console.error('Error writing to Supabase:', err);
     supabaseStatus.error = err.message || 'Unknown write error';
+    throw err;
   }
 }
 

@@ -21,6 +21,21 @@ export function getApiUser(): string | null {
   return currentUserId;
 }
 
+export function getApiBaseUrl(): string {
+  let rawApiUrl = import.meta.env.VITE_API_URL || '';
+  
+  if (!rawApiUrl && typeof window !== 'undefined') {
+    const host = window.location.hostname;
+    // If running on an external host (like Vercel) and no custom API URL is configured,
+    // automatically route back to our hosted backend server so everything works immediately.
+    if (host && !host.includes('localhost') && !host.includes('127.0.0.1') && !host.includes('ais-dev-')) {
+      rawApiUrl = 'https://ais-dev-cuoieywfscjzkq2qhlojje-457798443138.asia-southeast1.run.app';
+    }
+  }
+  
+  return rawApiUrl.endsWith('/') ? rawApiUrl.slice(0, -1) : rawApiUrl;
+}
+
 // Global fetch wrapper with headers and error handling
 async function apiRequest<T>(url: string, options: RequestInit = {}): Promise<T> {
   const headers = new Headers(options.headers || {});
@@ -34,8 +49,7 @@ async function apiRequest<T>(url: string, options: RequestInit = {}): Promise<T>
     headers.set('Content-Type', 'application/json');
   }
 
-  const rawApiUrl = import.meta.env.VITE_API_URL || '';
-  const API_BASE_URL = rawApiUrl.endsWith('/') ? rawApiUrl.slice(0, -1) : rawApiUrl;
+  const API_BASE_URL = getApiBaseUrl();
   const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
 
   const response = await fetch(fullUrl, {
@@ -138,8 +152,7 @@ export const api = {
       method: 'DELETE'
     }),
   getFileUrl: (noteId: string, download = false) => {
-    const rawApiUrl = import.meta.env.VITE_API_URL || '';
-    const API_BASE_URL = rawApiUrl.endsWith('/') ? rawApiUrl.slice(0, -1) : rawApiUrl;
+    const API_BASE_URL = getApiBaseUrl();
     return `${API_BASE_URL}/api/notes/${noteId}/file${download ? '?download=true' : ''}`;
   },
 
@@ -239,8 +252,7 @@ export const api = {
       method: 'DELETE'
     }),
   getSubmissionFileUrl: (submissionId: string) => {
-    const rawApiUrl = import.meta.env.VITE_API_URL || '';
-    const API_BASE_URL = rawApiUrl.endsWith('/') ? rawApiUrl.slice(0, -1) : rawApiUrl;
+    const API_BASE_URL = getApiBaseUrl();
     return `${API_BASE_URL}/api/submissions/${submissionId}/file`;
   },
 

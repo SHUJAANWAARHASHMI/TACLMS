@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import multer from 'multer';
 import { createServer as createViteServer } from 'vite';
-import { getDB, saveDB, DBStructure, syncWithSupabase, supabaseStatus, saveToSupabase } from './server/dbStore.js';
+import { getDB, saveDB, DBStructure, syncWithSupabase, supabaseStatus, saveToSupabase, ensureInit } from './server/dbStore';
 import { 
   User, ClassRoom, Subject, Chapter, Note, Video, AccessGrant, 
   Announcement, Quiz, QuizAttempt, Assignment, AssignmentSubmission, 
@@ -27,8 +27,20 @@ app.use((req, res, next) => {
   next();
 });
 
-// Create upload storage directory
-const UPLOADS_DIR = path.join(process.cwd(), 'uploads');
+// Ensure Supabase synchronization on Vercel boot or container boot before serving any request
+app.use(async (req, res, next) => {
+  try {
+    await ensureInit();
+  } catch (err) {
+    console.error('Initialization middleware failed:', err);
+  }
+  next();
+});
+
+// Create upload storage directory (use writeable /tmp on Vercel serverless functions)
+const UPLOADS_DIR = process.env.VERCEL 
+  ? path.join('/tmp', 'uploads') 
+  : path.join(process.cwd(), 'uploads');
 if (!fs.existsSync(UPLOADS_DIR)) {
   fs.mkdirSync(UPLOADS_DIR);
 }

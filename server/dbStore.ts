@@ -130,8 +130,9 @@ export async function loadFromIndividualTables(): Promise<DBStructure | null> {
 
   const db: any = {};
   let loadedCount = 0;
+  let criticalTableFailed = false;
 
-  for (const [tableName, dbKey] of Object.entries(tableMapping)) {
+  const promises = Object.entries(tableMapping).map(async ([tableName, dbKey]) => {
     try {
       const { data, error } = await supabase
         .from(tableName)
@@ -143,7 +144,7 @@ export async function loadFromIndividualTables(): Promise<DBStructure | null> {
         // Other missing tables (like optional user_credentials or lms_state) can be tolerated as empty.
         if (tableName === 'users' && (error.code === 'PGRST116' || error.message?.includes('does not exist') || error.message?.includes('404'))) {
           console.warn(`Critical Table '${tableName}' does not exist or failed to load. Aborting individual table load.`);
-          return null;
+          criticalTableFailed = true;
         }
         db[dbKey] = [];
       } else if (data) {
@@ -155,10 +156,16 @@ export async function loadFromIndividualTables(): Promise<DBStructure | null> {
     } catch (err: any) {
       console.warn(`Exception loading table ${tableName}:`, err.message || err);
       if (tableName === 'users') {
-        return null;
+        criticalTableFailed = true;
       }
       db[dbKey] = [];
     }
+  });
+
+  await Promise.all(promises);
+
+  if (criticalTableFailed) {
+    return null;
   }
 
   // Ensure mandatory default fields exist
@@ -172,7 +179,22 @@ export async function loadFromIndividualTables(): Promise<DBStructure | null> {
   return db as DBStructure;
 }
 
-const DB_PATH = path.join(process.cwd(), 'db.json');
+const DB_PATH = process.env.VERCEL 
+  ? path.join('/tmp', 'db.json') 
+  : path.join(process.cwd(), 'db.json');
+
+let initPromise: Promise<void> | null = null;
+export function ensureInit(): Promise<void> {
+  if (!initPromise) {
+    initPromise = (async () => {
+      console.log('Syncing with Supabase during initialization...');
+      await syncWithSupabase().catch(err => {
+        console.error('Supabase sync failed during ensureInit:', err);
+      });
+    })();
+  }
+  return initPromise;
+}
 
 export interface DBStructure {
   users: User[];
@@ -639,7 +661,9 @@ export function seedDB() {
   saveDB(db);
 
   // Ensure uploads directory exists and put a dummy text file to act as the pdf seed
-  const uploadsDir = path.join(process.cwd(), 'uploads');
+  const uploadsDir = process.env.VERCEL 
+    ? path.join('/tmp', 'uploads') 
+    : path.join(process.cwd(), 'uploads');
   if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir);
   }

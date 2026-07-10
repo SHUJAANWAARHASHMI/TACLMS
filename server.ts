@@ -1116,7 +1116,9 @@ interface DiscussionComment {
 }
 
 // Stored in db as dynamic array or custom JSON file
-const COMMENTS_PATH = path.join(process.cwd(), 'comments.json');
+const COMMENTS_PATH = process.env.VERCEL
+  ? path.join('/tmp', 'comments.json')
+  : path.join(process.cwd(), 'comments.json');
 function getComments(): DiscussionComment[] {
   if (!fs.existsSync(COMMENTS_PATH)) {
     fs.writeFileSync(COMMENTS_PATH, '[]');

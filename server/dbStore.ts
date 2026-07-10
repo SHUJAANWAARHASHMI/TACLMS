@@ -243,19 +243,32 @@ export async function syncWithSupabase() {
     console.log('Attempting to load data from individual tables in Supabase...');
     const individualDB = await loadFromIndividualTables();
     
-    // If we loaded successfully and there are actual users, we can use it!
-    if (individualDB && individualDB.users && individualDB.users.length > 0) {
-      console.log('Successfully loaded full database from individual Supabase tables!');
-      fs.writeFileSync(DB_PATH, JSON.stringify(individualDB, null, 2), 'utf-8');
-      supabaseStatus.connected = true;
-      supabaseStatus.lastSync = new Date().toISOString();
-      supabaseStatus.error = null;
-      supabaseStatus.tableChecked = true;
-      return;
+    // If we loaded successfully (individualDB is not null)
+    if (individualDB) {
+      if (individualDB.users && individualDB.users.length > 0) {
+        console.log('Successfully loaded full database from individual Supabase tables!');
+        fs.writeFileSync(DB_PATH, JSON.stringify(individualDB, null, 2), 'utf-8');
+        supabaseStatus.connected = true;
+        supabaseStatus.lastSync = new Date().toISOString();
+        supabaseStatus.error = null;
+        supabaseStatus.tableChecked = true;
+        return;
+      } else {
+        // The tables exist in Supabase but are completely empty.
+        // Let's seed them with our current local database state (which contains seeded students, classes, subjects, videos, notes)!
+        console.log('Individual tables are empty in Supabase. Seeding them with local data (students, passwords, videos, notes)...');
+        const currentDB = getDB();
+        await saveToIndividualTables(currentDB);
+        supabaseStatus.connected = true;
+        supabaseStatus.lastSync = new Date().toISOString();
+        supabaseStatus.error = null;
+        supabaseStatus.tableChecked = true;
+        return;
+      }
     }
 
     // Otherwise, fallback to the single lms_state row (backup state)
-    console.log('Individual tables empty or not fully set up. Falling back to lms_state backup...');
+    console.log('Individual tables not fully set up. Falling back to lms_state backup...');
     const { data, error } = await supabase
       .from('lms_state')
       .select('*')
@@ -272,14 +285,14 @@ export async function syncWithSupabase() {
         supabaseStatus.error = null;
         supabaseStatus.tableChecked = true;
       } else {
-        console.warn('Could not read from Supabase (is table "lms_state" created yet?):', error.message);
+        console.warn('Could not read from Supabase:', error.message);
         supabaseStatus.connected = false;
         
         const isRlsError = error.message.toLowerCase().includes('row-level security') || error.message.toLowerCase().includes('rls');
         if (isRlsError) {
-          supabaseStatus.error = `Row-Level Security (RLS) is blocking access to 'lms_state'. Please run this SQL in your Supabase SQL Editor to disable it:\n\nALTER TABLE lms_state DISABLE ROW LEVEL SECURITY;`;
+          supabaseStatus.error = `Row-Level Security (RLS) is blocking access. Please make sure RLS is disabled on your tables or you have supplied the "SUPABASE_SERVICE_KEY" in settings to bypass RLS.`;
         } else {
-          supabaseStatus.error = `Table 'lms_state' not found or inaccessible. Please run this SQL in your Supabase SQL Editor:\n\nCREATE TABLE lms_state (\n  key TEXT PRIMARY KEY,\n  value JSONB NOT NULL,\n  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc\'::text, now()) NOT NULL\n);\n\nALTER TABLE lms_state DISABLE ROW LEVEL SECURITY;`;
+          supabaseStatus.error = `Database tables not found. Please run the SQL schema in your Supabase SQL Editor to create the 17 tables (including users & user_credentials).`;
         }
         supabaseStatus.tableChecked = true;
       }

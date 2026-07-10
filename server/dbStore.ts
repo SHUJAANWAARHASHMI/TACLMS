@@ -98,7 +98,7 @@ export async function saveToIndividualTables(data: DBStructure) {
         console.log(`Synced ${table.rows.length} rows to '${table.name}' table successfully!`);
       }
     } catch (err: any) {
-      console.error(`Exception writing to table ${table.name}:`, err.message || err);
+      console.warn(`Exception writing to table ${table.name}:`, err.message || err);
     }
   }
 }
@@ -135,8 +135,10 @@ export async function loadFromIndividualTables(): Promise<DBStructure | null> {
 
       if (error) {
         console.warn(`Could not load table ${tableName} from Supabase:`, error.message);
-        if (error.code === 'PGRST116' || error.message?.includes('does not exist') || error.message?.includes('404')) {
-          console.warn(`Table '${tableName}' does not exist or failed to load. Aborting individual table load.`);
+        // Only abort the entire load if the critical 'users' table is missing.
+        // Other missing tables (like optional user_credentials or lms_state) can be tolerated as empty.
+        if (tableName === 'users' && (error.code === 'PGRST116' || error.message?.includes('does not exist') || error.message?.includes('404'))) {
+          console.warn(`Critical Table '${tableName}' does not exist or failed to load. Aborting individual table load.`);
           return null;
         }
         db[dbKey] = [];
@@ -147,8 +149,11 @@ export async function loadFromIndividualTables(): Promise<DBStructure | null> {
         db[dbKey] = [];
       }
     } catch (err: any) {
-      console.error(`Exception loading table ${tableName}:`, err.message || err);
-      return null;
+      console.warn(`Exception loading table ${tableName}:`, err.message || err);
+      if (tableName === 'users') {
+        return null;
+      }
+      db[dbKey] = [];
     }
   }
 
@@ -217,7 +222,7 @@ export async function saveToSupabase(data: DBStructure) {
       }, { onConflict: 'key' });
 
     if (backupError) {
-      console.error('Failed to save state backup to Supabase:', backupError.message);
+      console.warn('Failed to save state backup to Supabase (is "lms_state" created?):', backupError.message);
     }
 
     // 2. Save/upsert individual tables

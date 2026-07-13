@@ -552,6 +552,9 @@ export default function App() {
                         setActiveStudentTab('videos');
                         setLinkedSubjectId(subId);
                       }} 
+                      onNavigateTab={(tab) => {
+                        setActiveStudentTab(tab);
+                      }}
                     />
                   );
                 
@@ -728,54 +731,54 @@ export default function App() {
 
       {/* MOBILE BOTTOM NAVIGATION BAR FOR STUDENTS */}
       {user && user.role === 'student' && (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-slate-200/80 flex justify-around items-center z-40 px-2" id="mobile-bottom-nav">
+        <div className="lg:hidden fixed bottom-5 left-4 right-4 max-w-lg mx-auto h-16 bg-white/95 backdrop-blur-md border border-slate-200/80 rounded-2xl flex justify-around items-center z-40 px-2 shadow-[0_10px_30px_rgba(0,0,0,0.12)]" id="mobile-bottom-nav">
           <button
             onClick={() => setActiveStudentTab('dashboard')}
             className={`flex flex-col items-center gap-1 flex-1 py-1 cursor-pointer transition-all ${
-              activeStudentTab === 'dashboard' ? 'text-[#004aad]' : 'text-slate-400'
+              activeStudentTab === 'dashboard' ? 'text-[#004aad] scale-105 font-extrabold' : 'text-slate-400 hover:text-slate-600'
             }`}
           >
-            <Home size={18} />
+            <Home size={18} className={activeStudentTab === 'dashboard' ? 'stroke-[2.5px]' : 'stroke-[2px]'} />
             <span className="text-[9px] font-black uppercase tracking-wider">{lang === 'en' ? 'Home' : 'ہوم'}</span>
           </button>
 
           <button
             onClick={() => setActiveStudentTab('videos')}
             className={`flex flex-col items-center gap-1 flex-1 py-1 cursor-pointer transition-all ${
-              activeStudentTab === 'videos' ? 'text-[#004aad]' : 'text-slate-400'
+              activeStudentTab === 'videos' ? 'text-[#004aad] scale-105 font-extrabold' : 'text-slate-400 hover:text-slate-600'
             }`}
           >
-            <PlayCircle size={18} />
+            <PlayCircle size={18} className={activeStudentTab === 'videos' ? 'stroke-[2.5px]' : 'stroke-[2px]'} />
             <span className="text-[9px] font-black uppercase tracking-wider">{lang === 'en' ? 'Videos' : 'ویڈیوز'}</span>
           </button>
 
           <button
             onClick={() => setActiveStudentTab('notes')}
             className={`flex flex-col items-center gap-1 flex-1 py-1 cursor-pointer transition-all ${
-              activeStudentTab === 'notes' ? 'text-[#004aad]' : 'text-slate-400'
+              activeStudentTab === 'notes' ? 'text-[#004aad] scale-105 font-extrabold' : 'text-slate-400 hover:text-slate-600'
             }`}
           >
-            <FileText size={18} />
+            <FileText size={18} className={activeStudentTab === 'notes' ? 'stroke-[2.5px]' : 'stroke-[2px]'} />
             <span className="text-[9px] font-black uppercase tracking-wider">{lang === 'en' ? 'Notes' : 'نوٹس'}</span>
           </button>
 
           <button
             onClick={() => setActiveStudentTab('progress')}
             className={`flex flex-col items-center gap-1 flex-1 py-1 cursor-pointer transition-all ${
-              activeStudentTab === 'progress' ? 'text-[#004aad]' : 'text-slate-400'
+              activeStudentTab === 'progress' ? 'text-[#004aad] scale-105 font-extrabold' : 'text-slate-400 hover:text-slate-600'
             }`}
           >
-            <Trophy size={18} />
+            <Trophy size={18} className={activeStudentTab === 'progress' ? 'stroke-[2.5px]' : 'stroke-[2px]'} />
             <span className="text-[9px] font-black uppercase tracking-wider">{lang === 'en' ? 'Progress' : 'میری کارکردگی'}</span>
           </button>
 
           <button
             onClick={() => setActiveStudentTab('profile')}
             className={`flex flex-col items-center gap-1 flex-1 py-1 cursor-pointer transition-all ${
-              activeStudentTab === 'profile' ? 'text-[#004aad]' : 'text-slate-400'
+              activeStudentTab === 'profile' ? 'text-[#004aad] scale-105 font-extrabold' : 'text-slate-400 hover:text-slate-600'
             }`}
           >
-            <Settings size={18} />
+            <Settings size={18} className={activeStudentTab === 'profile' ? 'stroke-[2.5px]' : 'stroke-[2px]'} />
             <span className="text-[9px] font-black uppercase tracking-wider">{lang === 'en' ? 'Profile' : 'پروفائل'}</span>
           </button>
         </div>

@@ -314,21 +314,21 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
   const isRtl = lang === 'ur';
 
   return (
-    <div className={`min-h-screen bg-white flex flex-col justify-between ${isRtl ? 'urdu-text-direction font-urdu' : 'font-sans'}`} id="welcome-container">
+    <div className={`min-h-screen bg-white flex flex-col justify-between overflow-x-hidden w-full max-w-full ${isRtl ? 'urdu-text-direction font-urdu' : 'font-sans'}`} id="welcome-container">
       
       {/* Premium Deep Purple Top Navbar matching screenshot */}
-      <header className="bg-[#00245b] text-white py-4 px-6 md:px-8 shadow-lg flex justify-between items-center z-10 transition-colors" id="premium-header">
+      <header className="bg-[#00245b] text-white py-3 md:py-4 px-3 sm:px-6 md:px-8 shadow-lg flex justify-between items-center z-10 transition-colors" id="premium-header">
         
         {/* Brand Logo */}
-        <div className="flex items-center gap-2.5 cursor-pointer" id="brand-logo" onClick={() => setActiveTab('student')}>
-          <div className="bg-yellow-400 text-[#00245b] p-2 rounded-xl flex items-center justify-center shadow-md shadow-yellow-400/20">
-            <GraduationCap size={20} className="stroke-[2.5]" />
+        <div className="flex items-center gap-2 cursor-pointer" id="brand-logo" onClick={() => setActiveTab('student')}>
+          <div className="bg-yellow-400 text-[#00245b] p-1.5 sm:p-2 rounded-xl flex items-center justify-center shadow-md shadow-yellow-400/20">
+            <GraduationCap size={16} className="stroke-[2.5] sm:w-[20px] sm:h-[20px]" />
           </div>
           <div>
-            <h1 className="text-sm md:text-base font-black tracking-wider font-display flex items-center gap-1">
+            <h1 className="text-xs sm:text-sm md:text-base font-black tracking-wider font-display flex items-center gap-1">
               THE ALI'S <span className="text-yellow-400">COLLEGIATE</span>
             </h1>
-            <p className="text-[9px] text-white/50 font-bold uppercase tracking-widest leading-none">Learning Management System</p>
+            <p className="text-[8px] sm:text-[9px] text-white/50 font-bold uppercase tracking-widest leading-none hidden sm:block">Learning Management System</p>
           </div>
         </div>
 
@@ -425,46 +425,36 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
         </div>
 
         {/* Right Controls */}
-        <div className="flex items-center gap-3" id="navbar-right-controls">
-          {/* Language translation switch */}
-          <button
-            onClick={() => setLang(lang === 'en' ? 'ur' : 'en')}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-full border border-white/10 text-xs font-bold text-white/80 hover:bg-white/10 hover:text-white transition-all cursor-pointer mr-1"
-            id="lang-toggle-btn"
-          >
-            <Languages size={14} />
-            <span>{lang === 'en' ? 'اردو' : 'English'}</span>
-          </button>
-
+        <div className="flex items-center gap-1.5 sm:gap-3" id="navbar-right-controls">
           {/* Login Action */}
           <button
             onClick={() => { setActiveTab('student'); setError(null); }}
-            className={`px-4 py-2 text-xs font-bold border border-white/20 rounded-full flex items-center gap-2 text-white hover:bg-white/10 transition-all cursor-pointer ${
+            className={`px-2.5 py-1.5 sm:px-4 sm:py-2 text-[10px] sm:text-xs font-bold border border-white/20 rounded-full flex items-center gap-1 sm:gap-2 text-white hover:bg-white/10 transition-all cursor-pointer ${
               activeTab === 'student' ? 'bg-white/10 border-white/40 shadow-xs' : ''
             }`}
             id="nav-login-btn"
           >
             <span>Login</span>
-            <span className="w-4 h-4 rounded-full bg-white text-[#00245b] flex items-center justify-center text-[9px] font-black shrink-0">↗</span>
+            <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-white text-[#00245b] hidden sm:flex items-center justify-center text-[8px] sm:text-[9px] font-black shrink-0">↗</span>
           </button>
 
           {/* Register Action */}
           <button
             onClick={() => { setActiveTab('register'); setError(null); }}
-            className={`px-4 py-2 text-xs font-bold border border-white/20 rounded-full flex items-center gap-2 text-white hover:bg-white/10 transition-all cursor-pointer ${
+            className={`px-2.5 py-1.5 sm:px-4 sm:py-2 text-[10px] sm:text-xs font-bold border border-white/20 rounded-full flex items-center gap-1 sm:gap-2 text-white hover:bg-white/10 transition-all cursor-pointer ${
               activeTab === 'register' ? 'bg-white/10 border-white/40 shadow-xs' : ''
             }`}
             id="nav-register-btn"
           >
             <span>Register</span>
-            <span className="w-4 h-4 rounded-full bg-white text-[#00245b] flex items-center justify-center text-[9px] font-black shrink-0">↗</span>
+            <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-white text-[#00245b] hidden sm:flex items-center justify-center text-[8px] sm:text-[9px] font-black shrink-0">↗</span>
           </button>
 
           {/* Secret/Mock Admin Tab switch hidden inside header */}
           {showAdminTab && (
             <button
               onClick={() => { setActiveTab('admin'); setError(null); }}
-              className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider bg-rose-600 hover:bg-rose-700 text-white rounded-full transition-all cursor-pointer`}
+              className={`px-2.5 py-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider bg-rose-600 hover:bg-rose-700 text-white rounded-full transition-all cursor-pointer`}
               id="nav-admin-btn"
             >
               Admin Portal
@@ -472,8 +462,8 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
           )}
 
           {/* Shopping Bag Icon Button */}
-          <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center text-[#00245b] shadow-md hover:scale-105 transition-transform cursor-pointer shrink-0" id="cart-bag-btn">
-            <ShoppingBag size={15} className="stroke-[2.5]" />
+          <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-white flex items-center justify-center text-[#00245b] shadow-md hover:scale-105 transition-transform cursor-pointer shrink-0" id="cart-bag-btn">
+            <ShoppingBag size={13} className="stroke-[2.5] sm:w-[15px] sm:h-[15px]" />
           </div>
         </div>
       </header>

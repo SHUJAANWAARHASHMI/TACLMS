@@ -371,20 +371,6 @@ export default function App() {
 
         {/* Sidebar Footer Logout */}
         <div className="p-4 border-t border-slate-100 space-y-2">
-          {/* Bilingual Toggle inside sidebar footer */}
-          <button
-            onClick={toggleLanguage}
-            className="w-full flex items-center justify-between px-3 py-2 bg-slate-50 hover:bg-slate-100 rounded-xl text-[11px] font-bold text-slate-600 transition-colors cursor-pointer"
-          >
-            <div className="flex items-center gap-2">
-              <Globe size={13} className="text-blue-600" />
-              <span>{lang === 'en' ? 'اردو زبان (RTL)' : 'English Version'}</span>
-            </div>
-            <span className="text-[9px] bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded uppercase font-bold">
-              {lang}
-            </span>
-          </button>
-
           <button 
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-3.5 py-2.5 hover:bg-red-50 hover:text-red-600 rounded-xl text-xs font-bold text-slate-500 transition-colors cursor-pointer"
@@ -406,13 +392,6 @@ export default function App() {
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            onClick={toggleLanguage}
-            className="p-2 text-slate-200 hover:text-white transition-colors cursor-pointer"
-            title="Toggle Urdu/English language"
-          >
-            <Globe size={18} />
-          </button>
           {user.role === 'admin' ? (
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -517,14 +496,6 @@ export default function App() {
                 <span>Streak: {user.streakCount} Days</span>
               </div>
             )}
-
-            <button
-              onClick={toggleLanguage}
-              className="flex items-center gap-1.5 px-3.5 py-2 border border-slate-200/80 hover:bg-slate-50 text-slate-600 rounded-xl text-xs font-bold transition-all cursor-pointer"
-            >
-              <Globe size={14} className="text-sky-500 animate-spin-slow" />
-              <span>{lang === 'en' ? 'اردو زبان (Urdu)' : 'English Translation'}</span>
-            </button>
             
             <button 
               onClick={handleLogout}

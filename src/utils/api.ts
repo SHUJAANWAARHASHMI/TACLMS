@@ -2,7 +2,7 @@
 import { 
   User, ClassRoom, Subject, Chapter, Note, Video, AccessGrant, 
   Announcement, Quiz, QuizAttempt, Assignment, AssignmentSubmission, 
-  Bookmark, Progress, AuditLog, Attendance, StudentAccess, UserCredential 
+  Bookmark, Progress, AuditLog, Attendance, StudentAccess, UserCredential, Testimonial 
 } from '../types';
 
 let currentUserId: string | null = localStorage.getItem('taclms_user_id');
@@ -67,7 +67,19 @@ export const api = {
     return data.user;
   },
 
-  register: async (payload: { email: string; name: string; grNumber: string; password?: string; classIds: string[] }) => {
+  register: async (payload: { 
+    email: string; 
+    name: string; 
+    grNumber: string; 
+    password?: string; 
+    classIds: string[];
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+    country?: string;
+    city?: string;
+    accaId?: string;
+  }) => {
     return apiRequest<{ message: string; user: User }>('/api/auth/register', {
       method: 'POST',
       body: JSON.stringify(payload)
@@ -407,6 +419,29 @@ export const api = {
     return apiRequest<any>('/api/admin/credentials/update', {
       method: 'POST',
       body: JSON.stringify({ userId, passwordText })
+    });
+  },
+
+  getTestimonials: async (): Promise<Testimonial[]> => {
+    return apiRequest<Testimonial[]>('/api/testimonials');
+  },
+
+  submitTestimonial: async (rating: number, feedback: string): Promise<Testimonial> => {
+    return apiRequest<Testimonial>('/api/testimonials', {
+      method: 'POST',
+      body: JSON.stringify({ rating, feedback })
+    });
+  },
+
+  approveTestimonial: async (id: string): Promise<any> => {
+    return apiRequest<any>(`/api/testimonials/approve/${id}`, {
+      method: 'POST'
+    });
+  },
+
+  deleteTestimonial: async (id: string): Promise<any> => {
+    return apiRequest<any>(`/api/testimonials/${id}`, {
+      method: 'DELETE'
     });
   }
 };

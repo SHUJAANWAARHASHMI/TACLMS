@@ -1,10 +1,10 @@
 // Localization support dictionary for English and Urdu
 export const translations: Record<string, Record<string, string>> = {
   en: {
-    appName: 'The Ali Collegates LMS',
+    appName: "The Ali's Collegiate LMS",
     appBrand: 'TACLMS',
     welcomeBack: 'Welcome Back!',
-    tagline: 'Private Private Class-wise Notes & Video Library',
+    tagline: 'Private Class-wise Notes & Video Library',
     studentLogin: 'Student Login',
     adminLogin: 'Admin Login',
     registerAccount: 'Register Student Account',
@@ -19,7 +19,7 @@ export const translations: Record<string, Record<string, string>> = {
     adminRouteLink: 'Are you an Administrator? Access Portal',
     studentRouteLink: 'Are you a Student? Go to Student Portal',
     pendingApprovalTitle: 'Registration Received!',
-    pendingApprovalMsg: 'Your registration is submitted. Please wait for Professor Ali or an authorized administrator to activate your account.',
+    pendingApprovalMsg: 'Your registration is submitted. Please wait for Sir Ali Aslam or an authorized administrator to activate your account.',
     logout: 'Logout',
     dashboard: 'Dashboard',
     notes: 'Study Notes',
@@ -59,10 +59,17 @@ export const translations: Record<string, Record<string, string>> = {
     selectClass: 'Select Class',
     allClasses: 'All Classes',
     allSubjects: 'All Subjects',
-    quickContact: 'Ask Admin on WhatsApp'
+    quickContact: 'Ask Admin on WhatsApp',
+    testimonials: 'What Our Students Say',
+    submitFeedback: 'Submit Your Feedback',
+    feedbackPending: 'Your feedback has been sent for admin approval.',
+    writeFeedback: 'Write your feedback...',
+    rating: 'Rating',
+    studyLibrary: 'Study Library',
+    attendanceHistory: 'Attendance History'
   },
   ur: {
-    appName: 'دی علی کالجیٹس ایل ایم ایس',
+    appName: "دی علی'ز کالجیٹ ایل ایم ایس",
     appBrand: 'TACLMS',
     welcomeBack: 'خوش آمدید!',
     tagline: 'کلاس وار نوٹس اور ویڈیو لائبریری',
@@ -80,7 +87,7 @@ export const translations: Record<string, Record<string, string>> = {
     adminRouteLink: 'کیا آپ ایڈمنسٹریٹر ہیں؟ پورٹل تک رسائی حاصل کریں',
     studentRouteLink: 'کیا آپ طالب علم ہیں؟ طالب علم پورٹل پر جائیں',
     pendingApprovalTitle: 'رجسٹریشن موصول ہو گئی!',
-    pendingApprovalMsg: 'آپ کی درخواست جمع کر دی گئی ہے۔ براہ کرم پروفیسر علی یا کسی مجاز ایڈمنسٹریٹر کی طرف سے اکاؤنٹ فعال ہونے کا انتظار کریں۔',
+    pendingApprovalMsg: 'آپ کی درخواست جمع کر دی گئی ہے۔ براہ کرم سر علی اسلم یا کسی مجاز ایڈمنسٹریٹر کی طرف سے اکاؤنٹ فعال ہونے کا انتظار کریں۔',
     logout: 'لاگ آؤٹ',
     dashboard: 'ڈیش بورڈ',
     notes: 'مطالعہ نوٹس',
@@ -120,7 +127,14 @@ export const translations: Record<string, Record<string, string>> = {
     selectClass: 'کلاس منتخب کریں',
     allClasses: 'تمام کلاسز',
     allSubjects: 'تمام مضامین',
-    quickContact: 'واٹس ایپ پر ایڈمن سے پوچھیں'
+    quickContact: 'واٹس ایپ پر ایڈمن سے پوچھیں',
+    testimonials: 'طلباء کی رائے',
+    submitFeedback: 'اپنی رائے جمع کروائیں',
+    feedbackPending: 'آپ کی رائے ایڈمن کی منظوری کے لیے بھیج دی گئی ہے۔',
+    writeFeedback: 'اپنی رائے یہاں لکھیں...',
+    rating: 'درجہ بندی',
+    studyLibrary: 'اسٹڈی لائبریری',
+    attendanceHistory: 'حاضری کی تاریخ'
   }
 };
 

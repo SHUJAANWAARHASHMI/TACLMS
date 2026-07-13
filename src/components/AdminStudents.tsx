@@ -310,6 +310,39 @@ export default function AdminStudents() {
               </div>
             </div>
 
+            {/* Custom Registration Profile Fields */}
+            {(selectedStudent.firstName || selectedStudent.phone || selectedStudent.country || selectedStudent.city || selectedStudent.accaId) && (
+              <div className="bg-slate-50 border border-slate-100 p-3.5 rounded-xl space-y-2 text-xs" id="profile-custom-fields">
+                <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider">Extended Profile Information</span>
+                <div className="space-y-1.5 font-medium text-slate-700">
+                  {selectedStudent.phone && (
+                    <div className="flex justify-between border-b border-slate-200/50 pb-1 last:border-0 last:pb-0">
+                      <span className="text-slate-400">Phone Number:</span>
+                      <span className="font-semibold">{selectedStudent.phone}</span>
+                    </div>
+                  )}
+                  {selectedStudent.country && (
+                    <div className="flex justify-between border-b border-slate-200/50 pb-1 last:border-0 last:pb-0">
+                      <span className="text-slate-400">Country:</span>
+                      <span className="font-semibold">{selectedStudent.country}</span>
+                    </div>
+                  )}
+                  {selectedStudent.city && (
+                    <div className="flex justify-between border-b border-slate-200/50 pb-1 last:border-0 last:pb-0">
+                      <span className="text-slate-400">City:</span>
+                      <span className="font-semibold uppercase">{selectedStudent.city}</span>
+                    </div>
+                  )}
+                  {selectedStudent.accaId && (
+                    <div className="flex justify-between pb-1 last:border-0 last:pb-0">
+                      <span className="text-slate-400">ACCA ID:</span>
+                      <span className="font-semibold font-mono">{selectedStudent.accaId}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Micro Stats */}
             <div className="grid grid-cols-2 gap-3" id="profile-micro-stats">
               <div className="bg-slate-50 border p-3 rounded-xl text-center space-y-1">

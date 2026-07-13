@@ -12,6 +12,13 @@ export interface User {
   level: number;
   assignedClasses: string[]; // Class IDs
   createdAt: string;
+  streakCount?: number;
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  country?: string;
+  city?: string;
+  accaId?: string;
 }
 
 export interface ClassRoom {
@@ -189,5 +196,16 @@ export interface UserCredential {
   email: string;
   passwordText: string;
   updatedAt: string;
+}
+
+export interface Testimonial {
+  id: string;
+  studentId: string;
+  studentName: string;
+  studentClass: string;
+  rating: number; // 1-5
+  feedback: string;
+  isApproved: boolean;
+  createdAt: string;
 }
 

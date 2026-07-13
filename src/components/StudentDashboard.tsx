@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../utils/api';
 import { User, Announcement, Progress, Assignment, Note, Video, ClassRoom, Subject } from '../types';
 import { getTranslation } from '../utils/UrduTranslation';
-import { Trophy, Award, Clock, AlertCircle, Megaphone, CheckSquare, Play, FileText, ArrowRight } from 'lucide-react';
+import { Trophy, Award, Clock, AlertCircle, Megaphone, CheckSquare, Play, FileText, ArrowRight, Phone, MessageSquare, MapPin } from 'lucide-react';
 import { motion } from 'motion/react';
 
 interface StudentDashboardProps {
@@ -218,7 +218,7 @@ export default function StudentDashboard({ user, lang, onNavigate, onNavigateSub
               })}
               {subjects.length === 0 && (
                 <div className="col-span-2 py-8 text-center text-slate-400 text-sm">
-                  No subjects unlocked yet. Contact Admin / Prof. Ali for subject assignment.
+                  No subjects unlocked yet. Contact Admin / Sir Ali Aslam for subject assignment.
                 </div>
               )}
             </div>
@@ -332,6 +332,56 @@ export default function StudentDashboard({ user, lang, onNavigate, onNavigateSub
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* Quick Helpline & Campus Details Card */}
+          <div className="bg-gradient-to-br from-[#00173d] to-[#00245b] text-white rounded-2xl p-5 shadow-md border border-yellow-400/20 space-y-4" id="student-helpline-card">
+            <div>
+              <h4 className="text-xs font-black uppercase text-yellow-400 tracking-wider">
+                {lang === 'en' ? "The Ali's Collegiate Support" : "دی علی'ز کالجیٹ سپورٹ"}
+              </h4>
+              <p className="text-[11px] text-slate-300 mt-1 leading-relaxed">
+                {lang === 'en' ? 'Need help with course unlocks, fees, or technical support? Reach out to us.' : 'کورسز، فیس یا کسی بھی قسم کی مدد کے لیے رابطہ کریں؟'}
+              </p>
+            </div>
+
+            <div className="space-y-3 pt-1 text-xs">
+              <div className="flex items-center gap-3 bg-white/5 p-2.5 rounded-xl border border-white/5 hover:border-yellow-400/20 transition-all">
+                <div className="bg-emerald-500 text-white p-2 rounded-lg">
+                  <MessageSquare size={16} />
+                </div>
+                <div>
+                  <span className="text-[9px] uppercase font-bold tracking-wider text-slate-400 block">WhatsApp Support</span>
+                  <a href="https://wa.me/923183749686" target="_blank" rel="noreferrer" className="font-bold hover:text-emerald-400 font-mono">0318 3749686</a>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 bg-white/5 p-2.5 rounded-xl border border-white/5 hover:border-yellow-400/20 transition-all">
+                <div className="bg-[#004aad] text-white p-2 rounded-lg">
+                  <Phone size={16} />
+                </div>
+                <div>
+                  <span className="text-[9px] uppercase font-bold tracking-wider text-slate-400 block">Backup Helpline</span>
+                  <a href="https://wa.me/923192014240" target="_blank" rel="noreferrer" className="font-bold hover:text-blue-400 font-mono">0319 2014240</a>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 bg-white/5 p-2.5 rounded-xl border border-white/5">
+                <div className="bg-amber-500/20 text-yellow-400 p-2 rounded-lg shrink-0">
+                  <MapPin size={16} />
+                </div>
+                <div>
+                  <span className="text-[9px] uppercase font-bold tracking-wider text-slate-400 block">Main Campus</span>
+                  <p className="text-[10px] font-semibold text-slate-200 mt-0.5 leading-relaxed">
+                    House # 72/17, Sector 11-F, New Karachi
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="text-center pt-1 border-t border-white/10 text-[9px] font-bold text-yellow-400/80 uppercase tracking-widest">
+              Session 2026-27 • Head: Sir Ali Aslam
             </div>
           </div>
 

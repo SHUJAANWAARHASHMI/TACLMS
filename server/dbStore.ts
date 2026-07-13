@@ -391,7 +391,56 @@ export function getDB(): DBStructure {
   }
   try {
     const raw = fs.readFileSync(DB_PATH, 'utf-8');
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw) as DBStructure;
+    
+    // Defensive check: Ensure 9th and 10th grade classes and subjects exist in parsed DB
+    let modified = false;
+    if (!parsed.classes) parsed.classes = [];
+    if (!parsed.subjects) parsed.subjects = [];
+    
+    const requiredClasses = [
+      { id: 'class-1', name: '9th Grade', description: 'Secondary High School Education (Syllabus 2026)' },
+      { id: 'class-2', name: '10th Grade', description: 'Secondary Board Preparation Class' },
+      { id: 'class-3', name: 'BSCS 3rd Semester', description: 'Bachelor of Science in Computer Science - Batch 2025' }
+    ];
+    
+    for (const reqCls of requiredClasses) {
+      if (!parsed.classes.some(c => c.id === reqCls.id)) {
+        parsed.classes.push(reqCls);
+        modified = true;
+      }
+    }
+    
+    const requiredSubjects = [
+      { id: 'subject-1', classId: 'class-1', name: 'Physics' },
+      { id: 'subject-2', classId: 'class-1', name: 'Chemistry' },
+      { id: 'subject-5', classId: 'class-1', name: 'Mathematics' },
+      { id: 'subject-6', classId: 'class-1', name: 'English' },
+      { id: 'subject-7', classId: 'class-2', name: 'Physics' },
+      { id: 'subject-8', classId: 'class-2', name: 'Chemistry' },
+      { id: 'subject-9', classId: 'class-2', name: 'Mathematics' },
+      { id: 'subject-10', classId: 'class-2', name: 'English' },
+      { id: 'subject-3', classId: 'class-3', name: 'Data Structures & Algorithms' },
+      { id: 'subject-4', classId: 'class-3', name: 'Software Engineering' }
+    ];
+    
+    for (const reqSub of requiredSubjects) {
+      if (!parsed.subjects.some(s => s.id === reqSub.id)) {
+        parsed.subjects.push(reqSub);
+        modified = true;
+      }
+    }
+    
+    if (modified) {
+      console.log('Defensively seeded missing 9th/10th grade classes or subjects in getDB()');
+      try {
+        fs.writeFileSync(DB_PATH, JSON.stringify(parsed, null, 2), 'utf-8');
+      } catch (e) {
+        console.error('Error writing updated DB in defensive seed', e);
+      }
+    }
+    
+    return parsed;
   } catch (err) {
     console.error('Error reading db.json, returning empty', err);
     return emptyDB;
@@ -451,6 +500,12 @@ export function seedDB() {
   const subjectsList: Subject[] = [
     { id: 'subject-1', classId: 'class-1', name: 'Physics' },
     { id: 'subject-2', classId: 'class-1', name: 'Chemistry' },
+    { id: 'subject-5', classId: 'class-1', name: 'Mathematics' },
+    { id: 'subject-6', classId: 'class-1', name: 'English' },
+    { id: 'subject-7', classId: 'class-2', name: 'Physics' },
+    { id: 'subject-8', classId: 'class-2', name: 'Chemistry' },
+    { id: 'subject-9', classId: 'class-2', name: 'Mathematics' },
+    { id: 'subject-10', classId: 'class-2', name: 'English' },
     { id: 'subject-3', classId: 'class-3', name: 'Data Structures & Algorithms' },
     { id: 'subject-4', classId: 'class-3', name: 'Software Engineering' }
   ];

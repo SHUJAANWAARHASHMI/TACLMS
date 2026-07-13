@@ -7,7 +7,7 @@ import { getDB, saveDB, DBStructure, syncWithSupabase, supabaseStatus, saveToSup
 import { 
   User, ClassRoom, Subject, Chapter, Note, Video, AccessGrant, 
   Announcement, Quiz, QuizAttempt, Assignment, AssignmentSubmission, 
-  Bookmark, Progress, AuditLog, Attendance 
+  Bookmark, Progress, AuditLog, Attendance, Testimonial 
 } from './src/types';
 
 export const app = express();
@@ -233,15 +233,23 @@ app.post('/api/auth/login', (req, res) => {
 });
 
 app.post('/api/auth/register', (req, res) => {
-  const { email, name, grNumber, password, classIds } = req.body;
-  if (!email || !name || !grNumber) {
-    res.status(400).json({ error: 'Email, Name, and GR Number are required' });
+  const { email, name, grNumber, firstName, lastName, phone, country, city, accaId, password, classIds } = req.body;
+  
+  // Accept name as passed or construct it from firstName & lastName
+  const finalName = name || (firstName && lastName ? `${firstName} ${lastName}`.trim() : '');
+  
+  // Use accaId as grNumber or generate a unique ID
+  const finalGrNumber = grNumber || accaId || ('ACCA-' + Math.floor(100000 + Math.random() * 900000));
+  
+  if (!email || !finalName || !finalGrNumber) {
+    res.status(400).json({ error: 'Email, Full Name, and unique identifier are required' });
     return;
   }
+  
   const db = getDB();
-  const exists = db.users.some(u => u.email.toLowerCase() === email.toLowerCase() || u.grNumber === grNumber);
+  const exists = db.users.some(u => u.email.toLowerCase() === email.toLowerCase() || u.grNumber === finalGrNumber);
   if (exists) {
-    res.status(400).json({ error: 'User with this email or GR number already exists' });
+    res.status(400).json({ error: 'User with this email or ID already exists' });
     return;
   }
 
@@ -252,14 +260,20 @@ app.post('/api/auth/register', (req, res) => {
   const newUser: User = {
     id: 'user-' + Date.now() + '-' + Math.round(Math.random() * 1000),
     email: email.toLowerCase(),
-    name,
-    grNumber,
+    name: finalName,
+    grNumber: finalGrNumber,
     role: 'student',
     status: isAdmin ? 'active' : 'pending', // Active immediately if admin registered them
     xp: 0,
     level: 1,
     assignedClasses: classIds || [],
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
+    firstName,
+    lastName,
+    phone,
+    country,
+    city,
+    accaId
   };
 
   db.users.push(newUser);
@@ -281,7 +295,7 @@ app.post('/api/auth/register', (req, res) => {
 
   // Log in system logs
   const systemAdmin: User = requestingUser || { id: 'system', name: 'System Registrations', role: 'admin', email: '', grNumber: '', status: 'active', xp: 0, level: 1, assignedClasses: [], createdAt: '' };
-  logAction(systemAdmin, isAdmin ? 'Admin Registered Student' : 'New Self-Registration Request', `Student ${name} (GR: ${grNumber})`);
+  logAction(systemAdmin, isAdmin ? 'Admin Registered Student' : 'New Self-Registration Request', `Student ${finalName} (GR: ${finalGrNumber})`);
 
   res.json({ 
     message: isAdmin 
@@ -1310,6 +1324,101 @@ app.delete('/api/announcements/:id', requireAdmin, (req, res) => {
   db.announcements = db.announcements.filter(a => a.id !== id);
   saveDB(db);
   logAction((req as any).user, 'Deleted Announcement', id);
+  res.json({ success: true });
+});
+
+// ==================== TESTIMONIALS API ====================
+
+const TESTIMONIALS_PATH = process.env.VERCEL
+  ? path.join('/tmp', 'testimonials.json')
+  : path.join(process.cwd(), 'testimonials.json');
+
+function getTestimonials(): Testimonial[] {
+  if (!fs.existsSync(TESTIMONIALS_PATH)) {
+    fs.writeFileSync(TESTIMONIALS_PATH, '[]');
+  }
+  return JSON.parse(fs.readFileSync(TESTIMONIALS_PATH, 'utf-8'));
+}
+
+function saveTestimonials(testimonials: Testimonial[]) {
+  fs.writeFileSync(TESTIMONIALS_PATH, JSON.stringify(testimonials, null, 2));
+}
+
+app.get('/api/testimonials', requireAuth, (req, res) => {
+  const user = (req as any).user;
+  const testimonials = getTestimonials();
+  
+  if (user.role === 'admin') {
+    res.json(testimonials);
+  } else {
+    // Only return approved testimonials for students
+    res.json(testimonials.filter(t => t.isApproved));
+  }
+});
+
+app.post('/api/testimonials', requireAuth, (req, res) => {
+  const user = (req as any).user;
+  const { rating, feedback } = req.body;
+
+  if (!feedback) {
+    res.status(400).json({ error: 'Feedback text is required' });
+    return;
+  }
+
+  const db = getDB();
+  const userClasses = db.classes
+    .filter(c => user.assignedClasses.includes(c.id))
+    .map(c => c.name)
+    .join(', ') || 'General Student';
+
+  const testimonials = getTestimonials();
+  const newTestimonial: Testimonial = {
+    id: 'tst-' + Date.now() + '-' + Math.round(Math.random() * 1000),
+    studentId: user.id,
+    studentName: user.name,
+    studentClass: userClasses,
+    rating: typeof rating === 'number' ? rating : 5,
+    feedback,
+    isApproved: user.role === 'admin', // Auto-approved if created by admin
+    createdAt: new Date().toISOString()
+  };
+
+  testimonials.push(newTestimonial);
+  saveTestimonials(testimonials);
+  
+  logAction(user, 'Submitted Feedback', newTestimonial.id);
+  res.json(newTestimonial);
+});
+
+app.post('/api/testimonials/approve/:id', requireAdmin, (req, res) => {
+  const id = req.params.id;
+  const testimonials = getTestimonials();
+  const t = testimonials.find(item => item.id === id);
+  if (!t) {
+    res.status(404).json({ error: 'Testimonial not found' });
+    return;
+  }
+
+  t.isApproved = true;
+  saveTestimonials(testimonials);
+  
+  logAction((req as any).user, 'Approved Testimonial', id);
+  res.json({ success: true, testimonial: t });
+});
+
+app.delete('/api/testimonials/:id', requireAdmin, (req, res) => {
+  const id = req.params.id;
+  let testimonials = getTestimonials();
+  const exists = testimonials.some(item => item.id === id);
+  if (!exists) {
+    res.status(404).json({ error: 'Testimonial not found' });
+    return;
+  }
+
+  testimonials = testimonials.filter(item => item.id !== id);
+  saveTestimonials(testimonials);
+  
+  logAction((req as any).user, 'Deleted Testimonial', id);
   res.json({ success: true });
 });
 

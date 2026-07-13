@@ -81,7 +81,7 @@ export default function DocumentViewer({ note, user, onClose }: DocumentViewerPr
             {/* Header elements inside document page */}
             <div className="border-b-2 border-slate-900 pb-4 mb-6 flex justify-between items-start">
               <div>
-                <h3 className="text-xl font-bold font-display text-slate-900 uppercase">The Ali Collegates Private Library</h3>
+                <h3 className="text-xl font-bold font-display text-slate-900 uppercase">The Ali's Collegiate Private Library</h3>
                 <p className="text-xs text-slate-500 font-semibold tracking-wide">SECURE ACADEMIC DOCUMENT</p>
               </div>
               <div className="text-right">
@@ -99,7 +99,7 @@ export default function DocumentViewer({ note, user, onClose }: DocumentViewerPr
               <div className="space-y-4">
                 <h5 className="font-bold text-slate-900 text-sm">1. Executive Overview & Formulations</h5>
                 <p>
-                  Study notes are synthesized from recommended board guides, textbook derivations, and Professor Ali's lectures. In depth formulas have been verified with solutions for the latest semester requirements. Ensure you complete the practice assignments and take the integrated chapter MCQs to solidify these terms.
+                  Study notes are synthesized from recommended board guides, textbook derivations, and Sir Ali Aslam's lectures. In depth formulas have been verified with solutions for the latest semester requirements. Ensure you complete the practice assignments and take the integrated chapter MCQs to solidify these terms.
                 </p>
                 <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 font-mono text-xs text-slate-600 space-y-1">
                   <p className="font-bold text-slate-800">// Academic Core Concept Equation Reference</p>

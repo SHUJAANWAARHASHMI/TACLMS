@@ -405,11 +405,14 @@ app.get('/api/subjects', requireAuth, (req, res) => {
   const user = (req as any).user;
   const db = getDB();
   if (user.role === 'admin') {
-    res.json(db.subjects);
+    res.json(db.subjects.map(s => ({ ...s, isUnlocked: true })));
   } else {
-    // Student: filter subjects where student has access
-    const allowed = db.subjects.filter(sub => hasAccessToSubject(user, sub.id));
-    res.json(allowed);
+    // Return all subjects with an isUnlocked property computed for this student
+    const subjectsWithAccess = db.subjects.map(sub => ({
+      ...sub,
+      isUnlocked: hasAccessToSubject(user, sub.id)
+    }));
+    res.json(subjectsWithAccess);
   }
 });
 

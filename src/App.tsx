@@ -13,6 +13,7 @@ import StudentVideos from './components/StudentVideos';
 import StudentNotes from './components/StudentNotes';
 import StudentProgress from './components/StudentProgress';
 import StudentProfile from './components/StudentProfile';
+import StudentPortal from './components/StudentPortal';
 
 // Admin Portal Panels
 import AdminDashboard from './components/AdminDashboard';
@@ -137,6 +138,16 @@ export default function App() {
 
   if (!user) {
     return <WelcomeScreen onLoginSuccess={(usr) => { setUser(usr); if (usr.role === 'student') loadStudentMetrics(usr.id); }} lang={lang} setLang={setLang} />;
+  }
+
+  if (user.role === 'student') {
+    return (
+      <StudentPortal 
+        user={user} 
+        onLogout={handleLogout} 
+        onXPUpdated={handleXPUpdated}
+      />
+    );
   }
 
   const isRtl = lang === 'ur';

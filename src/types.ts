@@ -168,9 +168,11 @@ export interface Progress {
   id: string;
   studentId: string;
   itemId: string; // note, video, quiz, or assignment
-  itemType: 'note' | 'video' | 'quiz' | 'assignment';
+  itemType: 'note' | 'video' | 'quiz' | 'assignment' | 'mcq' | string;
   completedAt: string;
   xpEarned: number;
+  score?: number;
+  maxScore?: number;
 }
 
 export interface AuditLog {

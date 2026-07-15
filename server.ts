@@ -2,6 +2,7 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import multer from 'multer';
+import bcryptjs from 'bcryptjs';
 import { createServer as createViteServer } from 'vite';
 import { getDB, saveDB, DBStructure, syncWithSupabase, supabaseStatus, saveToSupabase, ensureInit } from './server/dbStore';
 import { 
@@ -27,10 +28,59 @@ app.use((req, res, next) => {
   next();
 });
 
+// Password Security Migration Script
+export function runPasswordMigration() {
+  try {
+    const db = getDB();
+    let migratedCount = 0;
+    let createdCount = 0;
+
+    if (!db.userCredentials) {
+      db.userCredentials = [];
+    }
+
+    db.users.forEach(user => {
+      let cred = db.userCredentials.find(c => c.userId === user.id);
+      if (!cred) {
+        // Create missing credential record with a default secure hashed password
+        const defaultPlainPassword = user.role === 'admin' ? 'admin123' : 'student123';
+        const defaultHashedPassword = bcryptjs.hashSync(defaultPlainPassword, 10);
+        db.userCredentials.push({
+          id: 'cred-' + Date.now() + '-' + Math.round(Math.random() * 1000),
+          userId: user.id,
+          email: user.email,
+          passwordText: defaultHashedPassword,
+          updatedAt: new Date().toISOString()
+        });
+        createdCount++;
+      } else {
+        // Check if existing password is plaintext
+        const isHashed = cred.passwordText.startsWith('$2a$') || cred.passwordText.startsWith('$2b$') || cred.passwordText.startsWith('$2y$');
+        if (!isHashed) {
+          console.log(`Migrating plaintext password for user ${user.email}`);
+          cred.passwordText = bcryptjs.hashSync(cred.passwordText, 10);
+          cred.updatedAt = new Date().toISOString();
+          migratedCount++;
+        }
+      }
+    });
+
+    if (migratedCount > 0 || createdCount > 0) {
+      saveDB(db);
+      console.log(`[Security Migration] Successfully secured database. Migrated ${migratedCount} plaintext passwords and created ${createdCount} secure credentials.`);
+    } else {
+      console.log('[Security Migration] Database already secured. No actions needed.');
+    }
+  } catch (err) {
+    console.error('[Security Migration] Migration failed:', err);
+  }
+}
+
 // Ensure Supabase synchronization on Vercel boot or container boot before serving any request
 app.use(async (req, res, next) => {
   try {
     await ensureInit();
+    runPasswordMigration();
   } catch (err) {
     console.error('Initialization middleware failed:', err);
   }
@@ -216,9 +266,13 @@ app.post('/api/auth/login', (req, res) => {
 
   // Get credentials for this specific user
   const creds = db.userCredentials?.find(c => c.userId === user.id);
-  const expectedPassword = creds ? creds.passwordText : (user.role === 'admin' ? 'admin123' : 'student123');
+  if (!creds) {
+    res.status(401).json({ error: 'Invalid email or password' });
+    return;
+  }
 
-  if (password !== expectedPassword && password !== 'password123' && password !== 'taclms123') {
+  const isMatch = bcryptjs.compareSync(password, creds.passwordText);
+  if (!isMatch) {
     res.status(401).json({ error: 'Invalid email or password' });
     return;
   }
@@ -243,6 +297,16 @@ app.post('/api/auth/register', (req, res) => {
   
   if (!email || !finalName || !finalGrNumber) {
     res.status(400).json({ error: 'Email, Full Name, and unique identifier are required' });
+    return;
+  }
+
+  const rawPassword = password || 'student123';
+  
+  // Enforce password strength validation at signup: min 8 characters, must have letters and numbers
+  const hasLetter = /[a-zA-Z]/.test(rawPassword);
+  const hasNumber = /[0-9]/.test(rawPassword);
+  if (rawPassword.length < 8 || !hasLetter || !hasNumber) {
+    res.status(400).json({ error: 'Password must be at least 8 characters long and contain both letters and numbers.' });
     return;
   }
   
@@ -282,12 +346,12 @@ app.post('/api/auth/register', (req, res) => {
   if (!db.userCredentials) {
     db.userCredentials = [];
   }
-  const issuedPassword = password || 'student123';
+  const hashedPassword = bcryptjs.hashSync(rawPassword, 10);
   db.userCredentials.push({
     id: 'cred-' + Date.now() + '-' + Math.round(Math.random() * 1000),
     userId: newUser.id,
     email: newUser.email,
-    passwordText: issuedPassword,
+    passwordText: hashedPassword,
     updatedAt: new Date().toISOString()
   });
 
@@ -318,6 +382,15 @@ app.post('/api/admin/credentials/update', requireAdmin, (req, res) => {
     res.status(400).json({ error: 'User ID and password are required' });
     return;
   }
+  
+  // Enforce password strength on admin-set passwords as well
+  const hasLetter = /[a-zA-Z]/.test(passwordText);
+  const hasNumber = /[0-9]/.test(passwordText);
+  if (passwordText.length < 8 || !hasLetter || !hasNumber) {
+    res.status(400).json({ error: 'Password must be at least 8 characters long and contain both letters and numbers.' });
+    return;
+  }
+
   const db = getDB();
   if (!db.userCredentials) {
     db.userCredentials = [];
@@ -329,22 +402,71 @@ app.post('/api/admin/credentials/update', requireAdmin, (req, res) => {
     return;
   }
 
+  const hashedPassword = bcryptjs.hashSync(passwordText, 10);
+
   let cred = db.userCredentials.find(c => c.userId === userId);
   if (cred) {
-    cred.passwordText = passwordText;
+    cred.passwordText = hashedPassword;
     cred.updatedAt = new Date().toISOString();
   } else {
     db.userCredentials.push({
       id: 'cred-' + Date.now() + '-' + Math.round(Math.random() * 1000),
       userId,
       email: user.email,
-      passwordText,
+      passwordText: hashedPassword,
       updatedAt: new Date().toISOString()
     });
   }
   
   saveDB(db);
   res.json({ message: 'Student credential updated successfully.' });
+});
+
+// ==================== STUDENT SELF-SERVICE PASSWORD CHANGE API ====================
+
+app.post('/api/auth/change-password', requireAuth, (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  const user = (req as any).user;
+
+  if (!currentPassword || !newPassword) {
+    res.status(400).json({ error: 'Current password and new password are required.' });
+    return;
+  }
+
+  // Enforce password strength: min 8 characters, must have letters and numbers
+  const hasLetter = /[a-zA-Z]/.test(newPassword);
+  const hasNumber = /[0-9]/.test(newPassword);
+  if (newPassword.length < 8 || !hasLetter || !hasNumber) {
+    res.status(400).json({ error: 'New password must be at least 8 characters long and contain both letters and numbers.' });
+    return;
+  }
+
+  const db = getDB();
+  if (!db.userCredentials) {
+    db.userCredentials = [];
+  }
+
+  const cred = db.userCredentials.find(c => c.userId === user.id);
+  if (!cred) {
+    res.status(404).json({ error: 'Credentials not found.' });
+    return;
+  }
+
+  // Check current password
+  const isMatch = bcryptjs.compareSync(currentPassword, cred.passwordText);
+  if (!isMatch) {
+    res.status(400).json({ error: 'Incorrect current password.' });
+    return;
+  }
+
+  // Hash and save new password
+  cred.passwordText = bcryptjs.hashSync(newPassword, 10);
+  cred.updatedAt = new Date().toISOString();
+
+  saveDB(db);
+  logAction(user, 'Changed Password', 'Student Self-Service');
+
+  res.json({ message: 'Password updated successfully.' });
 });
 
 
@@ -1236,18 +1358,18 @@ app.get('/api/progress', requireAuth, (req, res) => {
 });
 
 app.post('/api/progress/mark-done', requireAuth, (req, res) => {
-  const { itemId, itemType } = req.body;
+  const { itemId, itemType, score, maxScore } = req.body;
   const user = (req as any).user;
   const db = getDB();
 
   // Prevent duplicate completion
-  const alreadyCompleted = db.progress.some(p => p.studentId === user.id && p.itemId === itemId);
+  const alreadyCompleted = db.progress.some(p => p.studentId === user.id && p.itemId === itemId && p.itemType === itemType);
   if (alreadyCompleted) {
     res.json({ success: true, xpEarned: 0, message: 'Already marked as complete.' });
     return;
   }
 
-  const xpReward = itemType === 'note' ? 25 : 35; // 25 XP for note, 35 for video
+  const xpReward = itemType === 'note' ? 25 : (itemType === 'mcq' ? 30 : 35); // 25 XP for note, 30 for mcq, 35 for video/other
 
   // Credit user XP
   const dbUser = db.users.find(u => u.id === user.id)!;
@@ -1262,7 +1384,9 @@ app.post('/api/progress/mark-done', requireAuth, (req, res) => {
     itemId,
     itemType,
     completedAt: new Date().toISOString(),
-    xpEarned: xpReward
+    xpEarned: xpReward,
+    score,
+    maxScore
   });
 
   saveDB(db);
@@ -1273,6 +1397,232 @@ app.post('/api/progress/mark-done', requireAuth, (req, res) => {
     levelUp: dbUser.level > previousLevel,
     newLevel: dbUser.level
   });
+});
+
+// ==================== TOP 3 STUDENTS / RANKINGS MODULE ====================
+
+function seedSampleProgress(db: any) {
+  const hamzaId = 'student-1';
+  const tahaId = 'user-1783598099841-901';
+  const aliId = 'user-1783601996553-344';
+
+  const hamza = db.users.find((u: any) => u.id === hamzaId);
+  const taha = db.users.find((u: any) => u.id === tahaId);
+  const ali = db.users.find((u: any) => u.id === aliId);
+
+  if (!hamza && !taha && !ali) return;
+
+  console.log('[Seeder] Seeding initial mock progress for leaderboard demo...');
+
+  const class1Subjects = db.subjects.filter((s: any) => s.classId === 'class-1');
+  const class1Chaps = db.chapters.filter((c: any) => class1Subjects.some((s: any) => s.id === c.subjectId));
+  const class1Notes = db.notes.filter((n: any) => class1Chaps.some((c: any) => c.id === n.chapterId));
+  const class1Videos = db.videos.filter((v: any) => class1Chaps.some((c: any) => c.id === v.chapterId));
+  const class1Quizzes = db.quizzes.filter((q: any) => class1Chaps.some((c: any) => c.id === q.chapterId));
+  const class1Assignments = db.assignments.filter((a: any) => class1Chaps.some((c: any) => c.id === a.chapterId));
+
+  const class3Subjects = db.subjects.filter((s: any) => s.classId === 'class-3');
+  const class3Chaps = db.chapters.filter((c: any) => class3Subjects.some((s: any) => s.id === c.subjectId));
+  const class3Notes = db.notes.filter((n: any) => class3Chaps.some((c: any) => c.id === n.chapterId));
+  const class3Videos = db.videos.filter((v: any) => class3Chaps.some((c: any) => c.id === v.chapterId));
+  const class3Quizzes = db.quizzes.filter((q: any) => class3Chaps.some((c: any) => c.id === q.chapterId));
+  const class3Assignments = db.assignments.filter((a: any) => class3Chaps.some((c: any) => c.id === a.chapterId));
+
+  const now = new Date().toISOString();
+
+  // Hamza Noman: Completes Class-1 (All items) + Class-3 (All items)
+  if (hamza) {
+    const allClass1Items = [...class1Notes, ...class1Videos, ...class1Quizzes, ...class1Assignments];
+    const allClass3Items = [...class3Notes, ...class3Videos, ...class3Quizzes, ...class3Assignments];
+    
+    [...allClass1Items, ...allClass3Items].forEach((item, idx) => {
+      if (!db.progress.some((p: any) => p.studentId === hamzaId && p.itemId === item.id)) {
+        db.progress.push({
+          id: `prog-seed-hamza-${idx}`,
+          studentId: hamzaId,
+          itemId: item.id,
+          itemType: item.dueDate ? 'assignment' : (item.questions ? 'quiz' : (item.fileType ? 'note' : 'video')),
+          completedAt: now,
+          xpEarned: 35
+        });
+      }
+    });
+
+    class1Quizzes.forEach((q: any, idx: number) => {
+      if (!db.quizAttempts.some((qa: any) => qa.studentId === hamzaId && qa.quizId === q.id)) {
+        db.quizAttempts.push({
+          id: `attempt-seed-hamza-${idx}`,
+          quizId: q.id,
+          studentId: hamzaId,
+          answers: { 1: 0, 2: 1, 3: 2 },
+          score: q.questions.length,
+          maxScore: q.questions.length,
+          xpEarned: q.xpReward,
+          completedAt: now
+        });
+      }
+    });
+  }
+
+  // Taha: Completes Class-1 (All items) but NOT Class-3
+  if (taha) {
+    const allClass1Items = [...class1Notes, ...class1Videos, ...class1Quizzes, ...class1Assignments];
+    allClass1Items.forEach((item, idx) => {
+      if (!db.progress.some((p: any) => p.studentId === tahaId && p.itemId === item.id)) {
+        db.progress.push({
+          id: `prog-seed-taha-${idx}`,
+          studentId: tahaId,
+          itemId: item.id,
+          itemType: item.dueDate ? 'assignment' : (item.questions ? 'quiz' : (item.fileType ? 'note' : 'video')),
+          completedAt: now,
+          xpEarned: 35
+        });
+      }
+    });
+
+    class1Quizzes.forEach((q: any, idx: number) => {
+      if (!db.quizAttempts.some((qa: any) => qa.studentId === tahaId && qa.quizId === q.id)) {
+        db.quizAttempts.push({
+          id: `attempt-seed-taha-${idx}`,
+          quizId: q.id,
+          studentId: tahaId,
+          answers: { 1: 0, 2: 0, 3: 0 },
+          score: Math.max(1, q.questions.length - 1),
+          maxScore: q.questions.length,
+          xpEarned: Math.round(q.xpReward * 0.8),
+          completedAt: now
+        });
+      }
+    });
+  }
+
+  // ALI ASLAM: Completes 50% of Class-1
+  if (ali) {
+    const halfClass1Items = [...class1Notes, ...class1Videos].slice(0, Math.ceil(([...class1Notes, ...class1Videos].length) / 2));
+    halfClass1Items.forEach((item, idx) => {
+      if (!db.progress.some((p: any) => p.studentId === aliId && p.itemId === item.id)) {
+        db.progress.push({
+          id: `prog-seed-ali-${idx}`,
+          studentId: aliId,
+          itemId: item.id,
+          itemType: item.fileType ? 'note' : 'video',
+          completedAt: now,
+          xpEarned: 25
+        });
+      }
+    });
+
+    class1Quizzes.slice(0, 1).forEach((q: any, idx: number) => {
+      if (!db.quizAttempts.some((qa: any) => qa.studentId === aliId && qa.quizId === q.id)) {
+        db.quizAttempts.push({
+          id: `attempt-seed-ali-${idx}`,
+          quizId: q.id,
+          studentId: aliId,
+          answers: { 1: 1, 2: 1, 3: 1 },
+          score: Math.max(1, q.questions.length - 2),
+          maxScore: q.questions.length,
+          xpEarned: Math.round(q.xpReward * 0.6),
+          completedAt: now
+        });
+      }
+    });
+  }
+
+  saveDB(db);
+}
+
+function getRankingsData(db: any) {
+  const students = db.users.filter((u: any) => u.role === 'student' && u.status !== 'suspended');
+  
+  const studentRankings = students.map((student: any) => {
+    let classesCompleted = 0;
+    const assignedClasses = student.assignedClasses || [];
+    
+    assignedClasses.forEach((classId: string) => {
+      const classSubjects = db.subjects.filter((s: any) => s.classId === classId);
+      if (classSubjects.length === 0) return;
+      
+      let totalItems = 0;
+      let completedItems = 0;
+      
+      classSubjects.forEach((sub: any) => {
+        const chaps = db.chapters.filter((c: any) => c.subjectId === sub.id);
+        chaps.forEach((chap: any) => {
+          const chapNotes = db.notes.filter((n: any) => n.chapterId === chap.id);
+          const chapVideos = db.videos.filter((v: any) => v.chapterId === chap.id);
+          const chapQuizzes = db.quizzes.filter((q: any) => q.chapterId === chap.id);
+          const chapAssignments = db.assignments.filter((a: any) => a.chapterId === chap.id);
+          
+          totalItems += chapNotes.length + chapVideos.length + chapQuizzes.length + chapAssignments.length;
+          
+          const compNotes = chapNotes.filter((n: any) => db.progress.some((p: any) => p.studentId === student.id && p.itemId === n.id)).length;
+          const compVideos = chapVideos.filter((v: any) => db.progress.some((p: any) => p.studentId === student.id && p.itemId === v.id)).length;
+          const compQuizzes = chapQuizzes.filter((q: any) => db.progress.some((p: any) => p.studentId === student.id && p.itemId === q.id)).length;
+          const compAssignments = chapAssignments.filter((a: any) => db.progress.some((p: any) => p.studentId === student.id && p.itemId === a.id)).length;
+          
+          completedItems += compNotes + compVideos + compQuizzes + compAssignments;
+        });
+      });
+      
+      if (totalItems > 0 && completedItems === totalItems) {
+        classesCompleted++;
+      }
+    });
+
+    const quizAttempts = db.quizAttempts.filter((qa: any) => qa.studentId === student.id);
+    let totalCorrectAnswers = 0;
+    let totalQuestionsCount = 0;
+    
+    quizAttempts.forEach((attempt: any) => {
+      totalCorrectAnswers += attempt.score || 0;
+      totalQuestionsCount += attempt.maxScore || 0;
+    });
+
+    const progressMcqs = db.progress.filter((p: any) => p.studentId === student.id && p.itemType === 'mcq' && p.score !== undefined);
+    progressMcqs.forEach((pm: any) => {
+      totalCorrectAnswers += pm.score || 0;
+      totalQuestionsCount += pm.maxScore || 0;
+    });
+
+    const mcqPercentage = totalQuestionsCount > 0 ? Math.round((totalCorrectAnswers / totalQuestionsCount) * 100) : 0;
+    
+    return {
+      id: student.id,
+      name: student.name,
+      email: student.email,
+      grNumber: student.grNumber,
+      xp: student.xp || 0,
+      level: student.level || 1,
+      classesCompleted,
+      mcqScore: totalCorrectAnswers,
+      mcqPercentage
+    };
+  });
+
+  studentRankings.sort((a: any, b: any) => {
+    if (b.classesCompleted !== a.classesCompleted) {
+      return b.classesCompleted - a.classesCompleted;
+    }
+    return b.mcqScore - a.mcqScore;
+  });
+
+  return studentRankings;
+}
+
+app.get('/api/students/rankings', requireAuth, (req, res) => {
+  const db = getDB();
+  
+  // Seed sample data if quizAttempts are completely empty to make demo leaderboard beautiful
+  if (!db.quizAttempts || db.quizAttempts.length === 0) {
+    try {
+      seedSampleProgress(db);
+    } catch (e) {
+      console.error('Failed to seed progress:', e);
+    }
+  }
+
+  const rankings = getRankingsData(db);
+  res.json({ rankings });
 });
 
 app.get('/api/student-stats', requireAuth, (req, res) => {
@@ -1472,7 +1822,9 @@ async function startServer() {
 
   // Sync with Supabase on boot
   console.log('Initializing Supabase synchronization...');
-  syncWithSupabase().catch(err => {
+  syncWithSupabase().then(() => {
+    runPasswordMigration();
+  }).catch(err => {
     console.error('Error in startup Supabase sync:', err);
   });
 

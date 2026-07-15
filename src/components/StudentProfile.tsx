@@ -36,7 +36,57 @@ export default function StudentProfile({ user, lang, onXPUpdated }: StudentProfi
   // FAQ states
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
 
+  // Password Change States
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [passwordSuccess, setPasswordSuccess] = useState(false);
+
   const isRtl = lang === 'ur';
+
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError(null);
+    setPasswordSuccess(false);
+
+    if (newPassword.length < 8) {
+      setPasswordError(lang === 'en' ? 'New password must be at least 8 characters long.' : 'نیا پاس ورڈ کم از کم 8 حروف کا ہونا ضروری ہے۔');
+      return;
+    }
+
+    const hasLetter = /[a-zA-Z]/.test(newPassword);
+    const hasNumber = /[0-9]/.test(newPassword);
+    if (!hasLetter || !hasNumber) {
+      setPasswordError(lang === 'en' ? 'New password must contain both letters and numbers.' : 'نئے پاس ورڈ میں حروف اور نمبر دونوں ہونے چاہئیں۔');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError(lang === 'en' ? 'Passwords do not match.' : 'پاس ورڈ مماثل نہیں ہیں۔');
+      return;
+    }
+
+    setChangingPassword(true);
+    try {
+      await api.changePassword(currentPassword, newPassword);
+      setPasswordSuccess(true);
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      
+      // Reward student with 10 XP for securing their account with a strong password!
+      const res = await api.markAsCompleted('secured_student_password', 'note');
+      if (res.success && res.xpEarned > 0) {
+        onXPUpdated(user.xp + res.xpEarned, res.newLevel, res.levelUp);
+      }
+    } catch (err: any) {
+      setPasswordError(err.message || 'Failed to change password');
+    } finally {
+      setChangingPassword(false);
+    }
+  };
 
   // Toggle Dark Mode
   const handleToggleDarkMode = () => {
@@ -212,6 +262,86 @@ export default function StudentProfile({ user, lang, onXPUpdated }: StudentProfi
               </button>
             </div>
           </div>
+        </div>
+
+        {/* Change Password Card */}
+        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-xs space-y-4">
+          <h4 className="text-xs font-black uppercase text-slate-400 tracking-widest flex items-center gap-1.5 px-1">
+            <Settings size={14} className="text-[#004aad]" />
+            <span>{lang === 'en' ? 'Change Password' : 'پاس ورڈ تبدیل کریں'}</span>
+          </h4>
+
+          {passwordSuccess ? (
+            <div className="p-3.5 bg-teal-50 border border-teal-200 rounded-xl text-teal-800 font-bold text-xs flex gap-2 items-center">
+              <CheckCircle size={16} className="text-teal-600 shrink-0" />
+              <span>
+                {lang === 'en' 
+                  ? 'Password updated successfully! +10 XP earned.' 
+                  : 'پاس ورڈ کامیابی سے تبدیل ہو گیا! +10 XP حاصل ہوئے۔'}
+              </span>
+            </div>
+          ) : (
+            <form onSubmit={handlePasswordChange} className="space-y-3.5 text-xs">
+              {passwordError && (
+                <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 font-bold text-[11px] leading-relaxed flex gap-1.5 items-start">
+                  <AlertCircle size={14} className="shrink-0 mt-0.5 text-rose-600" />
+                  <span>{passwordError}</span>
+                </div>
+              )}
+              
+              <div className="space-y-1">
+                <label className="font-black text-slate-500 uppercase tracking-wider block text-[9px]">
+                  {lang === 'en' ? 'Current Password' : 'موجودہ پاس ورڈ'}
+                </label>
+                <input
+                  type="password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  placeholder={lang === 'en' ? 'Enter current password' : 'موجودہ پاس ورڈ درج کریں'}
+                  required
+                  className="w-full p-2.5 border border-slate-200 rounded-xl text-xs bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#004aad]/10 focus:border-[#004aad]"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-black text-slate-500 uppercase tracking-wider block text-[9px]">
+                  {lang === 'en' ? 'New Password' : 'نیا پاس ورڈ'}
+                </label>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder={lang === 'en' ? 'At least 8 chars with letters & numbers' : 'کم از کم 8 حروف، نمبر اور حروف کے ساتھ'}
+                  required
+                  className="w-full p-2.5 border border-slate-200 rounded-xl text-xs bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#004aad]/10 focus:border-[#004aad]"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-black text-slate-500 uppercase tracking-wider block text-[9px]">
+                  {lang === 'en' ? 'Confirm New Password' : 'نئے پاس ورڈ کی تصدیق کریں'}
+                </label>
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder={lang === 'en' ? 'Re-enter new password' : 'نیا پاس ورڈ دوبارہ درج کریں'}
+                  required
+                  className="w-full p-2.5 border border-slate-200 rounded-xl text-xs bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#004aad]/10 focus:border-[#004aad]"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={changingPassword}
+                className="w-full py-2.5 bg-[#004aad] hover:bg-[#003e91] text-white rounded-xl font-black uppercase tracking-wider text-[10px] cursor-pointer transition-colors shadow-xs disabled:opacity-50"
+              >
+                {changingPassword 
+                  ? (lang === 'en' ? 'Updating...' : 'تبدیل ہو رہا ہے...') 
+                  : (lang === 'en' ? 'Update Password' : 'پاس ورڈ تبدیل کریں')}
+              </button>
+            </form>
+          )}
         </div>
 
         {/* WhatsApp Helpline Contacts */}

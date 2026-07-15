@@ -717,7 +717,7 @@ export default function App() {
           <button
             onClick={() => setActiveStudentTab('dashboard')}
             className={`flex flex-col items-center gap-1 flex-1 py-1 cursor-pointer transition-all ${
-              activeStudentTab === 'dashboard' ? 'text-[#004aad] scale-105 font-extrabold' : 'text-slate-400 hover:text-slate-600'
+              activeStudentTab === 'dashboard' ? 'text-[#00175c] scale-105 font-extrabold' : 'text-slate-400 hover:text-slate-600'
             }`}
           >
             <Home size={18} className={activeStudentTab === 'dashboard' ? 'stroke-[2.5px]' : 'stroke-[2px]'} />
@@ -727,7 +727,7 @@ export default function App() {
           <button
             onClick={() => setActiveStudentTab('videos')}
             className={`flex flex-col items-center gap-1 flex-1 py-1 cursor-pointer transition-all ${
-              activeStudentTab === 'videos' ? 'text-[#004aad] scale-105 font-extrabold' : 'text-slate-400 hover:text-slate-600'
+              activeStudentTab === 'videos' ? 'text-[#00175c] scale-105 font-extrabold' : 'text-slate-400 hover:text-slate-600'
             }`}
           >
             <PlayCircle size={18} className={activeStudentTab === 'videos' ? 'stroke-[2.5px]' : 'stroke-[2px]'} />
@@ -737,7 +737,7 @@ export default function App() {
           <button
             onClick={() => setActiveStudentTab('notes')}
             className={`flex flex-col items-center gap-1 flex-1 py-1 cursor-pointer transition-all ${
-              activeStudentTab === 'notes' ? 'text-[#004aad] scale-105 font-extrabold' : 'text-slate-400 hover:text-slate-600'
+              activeStudentTab === 'notes' ? 'text-[#00175c] scale-105 font-extrabold' : 'text-slate-400 hover:text-slate-600'
             }`}
           >
             <FileText size={18} className={activeStudentTab === 'notes' ? 'stroke-[2.5px]' : 'stroke-[2px]'} />
@@ -747,7 +747,7 @@ export default function App() {
           <button
             onClick={() => setActiveStudentTab('progress')}
             className={`flex flex-col items-center gap-1 flex-1 py-1 cursor-pointer transition-all ${
-              activeStudentTab === 'progress' ? 'text-[#004aad] scale-105 font-extrabold' : 'text-slate-400 hover:text-slate-600'
+              activeStudentTab === 'progress' ? 'text-[#00175c] scale-105 font-extrabold' : 'text-slate-400 hover:text-slate-600'
             }`}
           >
             <Trophy size={18} className={activeStudentTab === 'progress' ? 'stroke-[2.5px]' : 'stroke-[2px]'} />
@@ -757,7 +757,7 @@ export default function App() {
           <button
             onClick={() => setActiveStudentTab('profile')}
             className={`flex flex-col items-center gap-1 flex-1 py-1 cursor-pointer transition-all ${
-              activeStudentTab === 'profile' ? 'text-[#004aad] scale-105 font-extrabold' : 'text-slate-400 hover:text-slate-600'
+              activeStudentTab === 'profile' ? 'text-[#00175c] scale-105 font-extrabold' : 'text-slate-400 hover:text-slate-600'
             }`}
           >
             <Settings size={18} className={activeStudentTab === 'profile' ? 'stroke-[2.5px]' : 'stroke-[2px]'} />

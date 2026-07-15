@@ -317,11 +317,11 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
     <div className={`min-h-screen bg-white flex flex-col justify-between overflow-x-hidden w-full max-w-full ${isRtl ? 'urdu-text-direction font-urdu' : 'font-sans'}`} id="welcome-container">
       
       {/* Premium Deep Purple Top Navbar matching screenshot */}
-      <header className="bg-[#00245b] text-white py-3 md:py-4 px-3 sm:px-6 md:px-8 shadow-lg flex justify-between items-center z-10 transition-colors" id="premium-header">
+      <header className="bg-[#00175c] text-white py-3 md:py-4 px-3 sm:px-6 md:px-8 shadow-lg flex justify-between items-center z-10 transition-colors" id="premium-header">
         
         {/* Brand Logo */}
         <div className="flex items-center gap-2 cursor-pointer" id="brand-logo" onClick={() => setActiveTab('student')}>
-          <div className="bg-yellow-400 text-[#00245b] p-1.5 sm:p-2 rounded-xl flex items-center justify-center shadow-md shadow-yellow-400/20">
+          <div className="bg-yellow-400 text-[#00175c] p-1.5 sm:p-2 rounded-xl flex items-center justify-center shadow-md shadow-yellow-400/20">
             <GraduationCap size={16} className="stroke-[2.5] sm:w-[20px] sm:h-[20px]" />
           </div>
           <div>
@@ -353,7 +353,7 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
                   style={{ top: '100%' }}
                   id="courses-dropdown-floating"
                 >
-                  <div className="p-4 bg-[#00245b] text-white flex justify-between items-center">
+                  <div className="p-4 bg-[#00175c] text-white flex justify-between items-center">
                     <div>
                       <h4 className="font-bold text-xs uppercase tracking-wider text-yellow-400">Our Board Batches</h4>
                       <p className="text-[10px] text-white/70">Karachi Board Matric Prep 2026</p>
@@ -365,13 +365,13 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
                     {/* 9th Grade Col */}
                     <div className="p-3 space-y-3">
                       <div className="flex justify-between items-center pb-1 border-b border-slate-50">
-                        <span className="font-black text-xs text-[#00245b]">9th Grade</span>
+                        <span className="font-black text-xs text-[#00175c]">9th Grade</span>
                         <span className="text-[9px] bg-indigo-50 text-indigo-700 px-1.5 py-0.5 rounded-md font-bold">Matric I</span>
                       </div>
                       <div className="space-y-2">
                         {coursesData['9th'].map(c => (
                           <div key={c.id} className="text-left cursor-pointer group" onClick={() => { setSelectedShowcaseClass('9th'); scrollToCourses(); }}>
-                            <h5 className="text-[10px] font-bold text-slate-700 group-hover:text-[#00245b] transition-colors flex items-center gap-1">
+                            <h5 className="text-[10px] font-bold text-slate-700 group-hover:text-[#00175c] transition-colors flex items-center gap-1">
                               <span className="text-indigo-500">•</span> {c.name}
                             </h5>
                             <p className="text-[8px] text-slate-400 line-clamp-1 group-hover:text-slate-500">
@@ -385,13 +385,13 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
                     {/* 10th Grade Col */}
                     <div className="p-3 space-y-3">
                       <div className="flex justify-between items-center pb-1 border-b border-slate-50">
-                        <span className="font-black text-xs text-[#00245b]">10th Grade</span>
+                        <span className="font-black text-xs text-[#00175c]">10th Grade</span>
                         <span className="text-[9px] bg-indigo-50 text-indigo-700 px-1.5 py-0.5 rounded-md font-bold">Matric II</span>
                       </div>
                       <div className="space-y-2">
                         {coursesData['10th'].map(c => (
                           <div key={c.id} className="text-left cursor-pointer group" onClick={() => { setSelectedShowcaseClass('10th'); scrollToCourses(); }}>
-                            <h5 className="text-[10px] font-bold text-slate-700 group-hover:text-[#00245b] transition-colors flex items-center gap-1">
+                            <h5 className="text-[10px] font-bold text-slate-700 group-hover:text-[#00175c] transition-colors flex items-center gap-1">
                               <span className="text-indigo-500">•</span> {c.name}
                             </h5>
                             <p className="text-[8px] text-slate-400 line-clamp-1 group-hover:text-slate-500">
@@ -407,7 +407,7 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
                     <button 
                       type="button"
                       onClick={scrollToCourses}
-                      className="text-[#00245b] text-[10px] font-bold hover:underline"
+                      className="text-[#00175c] text-[10px] font-bold hover:underline"
                     >
                       View Full Details below &rarr;
                     </button>
@@ -435,7 +435,7 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
             id="nav-login-btn"
           >
             <span>Login</span>
-            <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-white text-[#00245b] hidden sm:flex items-center justify-center text-[8px] sm:text-[9px] font-black shrink-0">↗</span>
+            <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-white text-[#00175c] hidden sm:flex items-center justify-center text-[8px] sm:text-[9px] font-black shrink-0">↗</span>
           </button>
 
           {/* Register Action */}
@@ -447,7 +447,7 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
             id="nav-register-btn"
           >
             <span>Register</span>
-            <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-white text-[#00245b] hidden sm:flex items-center justify-center text-[8px] sm:text-[9px] font-black shrink-0">↗</span>
+            <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-white text-[#00175c] hidden sm:flex items-center justify-center text-[8px] sm:text-[9px] font-black shrink-0">↗</span>
           </button>
 
           {/* Secret/Mock Admin Tab switch hidden inside header */}
@@ -462,7 +462,7 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
           )}
 
           {/* Shopping Bag Icon Button */}
-          <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-white flex items-center justify-center text-[#00245b] shadow-md hover:scale-105 transition-transform cursor-pointer shrink-0" id="cart-bag-btn">
+          <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-white flex items-center justify-center text-[#00175c] shadow-md hover:scale-105 transition-transform cursor-pointer shrink-0" id="cart-bag-btn">
             <ShoppingBag size={13} className="stroke-[2.5] sm:w-[15px] sm:h-[15px]" />
           </div>
         </div>
@@ -476,7 +476,7 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
           <div className={`lg:col-span-5 space-y-6 ${activeTab === 'register' ? 'lg:col-span-7' : 'lg:col-span-5'}`} id="form-container-panel">
             
             <div className="space-y-2">
-              <h2 className="text-4xl md:text-5xl font-black text-[#00245b] font-display tracking-tight leading-tight" id="main-auth-title">
+              <h2 className="text-4xl md:text-5xl font-black text-[#00175c] font-display tracking-tight leading-tight" id="main-auth-title">
                 {activeTab === 'register' 
                   ? 'Sign up' 
                   : (activeTab === 'admin' ? 'Admin Login' : 'Login')
@@ -538,7 +538,7 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
                     placeholder="Enter Your Email Address"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-5 py-3 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-[#00245b]/10 focus:border-[#00245b] transition-all bg-white text-slate-800 text-xs font-medium"
+                    className="w-full px-5 py-3 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-[#00175c]/10 focus:border-[#00175c] transition-all bg-white text-slate-800 text-xs font-medium"
                     id="login-email-input"
                   />
                 </div>
@@ -555,7 +555,7 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
                       placeholder="Enter Your Password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full pl-5 pr-12 py-3 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-[#00245b]/10 focus:border-[#00245b] transition-all bg-white text-slate-800 text-xs font-medium"
+                      className="w-full pl-5 pr-12 py-3 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-[#00175c]/10 focus:border-[#00175c] transition-all bg-white text-slate-800 text-xs font-medium"
                       id="login-password-input"
                     />
                     <button
@@ -583,14 +583,14 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
                       type="checkbox"
                       checked={rememberMe}
                       onChange={(e) => setRememberMe(e.target.checked)}
-                      className="w-4 h-4 text-[#00245b] border-slate-300 rounded-md focus:ring-[#00245b]/20"
+                      className="w-4 h-4 text-[#00175c] border-slate-300 rounded-md focus:ring-[#00175c]/20"
                     />
                     <span>Remember me</span>
                   </label>
                   <button 
                     type="button" 
                     onClick={() => alert('Please contact administrator on WhatsApp to reset password.')}
-                    className="text-[#00245b] hover:underline transition-all cursor-pointer" 
+                    className="text-[#00175c] hover:underline transition-all cursor-pointer" 
                     id="forgot-password-btn"
                   >
                     Forgot Password
@@ -601,7 +601,7 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-[#00245b] hover:bg-[#00133a] text-white py-3.5 rounded-full font-bold transition-all shadow-md hover:shadow-lg flex justify-center items-center gap-2 mt-6 cursor-pointer disabled:bg-slate-300 disabled:cursor-not-allowed text-xs uppercase tracking-wider"
+                  className="w-full bg-[#00175c] hover:bg-[#00133a] text-white py-3.5 rounded-full font-bold transition-all shadow-md hover:shadow-lg flex justify-center items-center gap-2 mt-6 cursor-pointer disabled:bg-slate-300 disabled:cursor-not-allowed text-xs uppercase tracking-wider"
                   id="login-submit-btn"
                 >
                   <span>{loading ? 'Logging in...' : 'Login'}</span>
@@ -617,7 +617,7 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
                       setActiveTab('register');
                       setError(null);
                     }}
-                    className="text-[#00245b] hover:underline font-black cursor-pointer ml-1"
+                    className="text-[#00175c] hover:underline font-black cursor-pointer ml-1"
                     id="signup-link-btn"
                   >
                     Sign up
@@ -639,7 +639,7 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
                       placeholder="Enter First Name"
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
-                      className="w-full px-5 py-3 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-[#00245b]/10 focus:border-[#00245b] transition-all bg-white text-slate-800 text-xs font-medium"
+                      className="w-full px-5 py-3 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-[#00175c]/10 focus:border-[#00175c] transition-all bg-white text-slate-800 text-xs font-medium"
                       id="register-firstname-input"
                     />
                   </div>
@@ -653,7 +653,7 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
                       placeholder="Enter Last Name"
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
-                      className="w-full px-5 py-3 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-[#00245b]/10 focus:border-[#00245b] transition-all bg-white text-slate-800 text-xs font-medium"
+                      className="w-full px-5 py-3 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-[#00175c]/10 focus:border-[#00175c] transition-all bg-white text-slate-800 text-xs font-medium"
                       id="register-lastname-input"
                     />
                   </div>
@@ -671,7 +671,7 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
                       placeholder="Enter Email Address"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full px-5 py-3 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-[#00245b]/10 focus:border-[#00245b] transition-all bg-white text-slate-800 text-xs font-medium"
+                      className="w-full px-5 py-3 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-[#00175c]/10 focus:border-[#00175c] transition-all bg-white text-slate-800 text-xs font-medium"
                       id="register-email-input"
                     />
                   </div>
@@ -685,7 +685,7 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
                       placeholder="Enter Phone Number"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      className="w-full px-5 py-3 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-[#00245b]/10 focus:border-[#00245b] transition-all bg-white text-slate-800 text-xs font-medium"
+                      className="w-full px-5 py-3 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-[#00175c]/10 focus:border-[#00175c] transition-all bg-white text-slate-800 text-xs font-medium"
                       id="register-phone-input"
                     />
                   </div>
@@ -741,11 +741,11 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
                                     setCountrySearchQuery('');
                                   }}
                                   className={`w-full px-4 py-2.5 text-left text-xs font-semibold hover:bg-slate-50 transition-all text-slate-700 flex justify-between items-center ${
-                                    country === c ? 'bg-indigo-50 text-[#00245b]' : ''
+                                    country === c ? 'bg-indigo-50 text-[#00175c]' : ''
                                   }`}
                                 >
                                   <span>{c}</span>
-                                  {country === c && <div className="w-1.5 h-1.5 bg-[#00245b] rounded-full" />}
+                                  {country === c && <div className="w-1.5 h-1.5 bg-[#00175c] rounded-full" />}
                                 </button>
                               ))}
                           </div>
@@ -765,7 +765,7 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
                       placeholder="Enter City"
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
-                      className="w-full px-5 py-3 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-[#00245b]/10 focus:border-[#00245b] transition-all bg-white text-slate-800 text-xs font-medium"
+                      className="w-full px-5 py-3 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-[#00175c]/10 focus:border-[#00175c] transition-all bg-white text-slate-800 text-xs font-medium"
                       id="register-city-input"
                     />
                   </div>
@@ -783,7 +783,7 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
                       placeholder="Enter Password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full px-5 py-3 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-[#00245b]/10 focus:border-[#00245b] transition-all bg-white text-slate-800 text-xs font-medium"
+                      className="w-full px-5 py-3 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-[#00175c]/10 focus:border-[#00175c] transition-all bg-white text-slate-800 text-xs font-medium"
                       id="register-password-input"
                     />
                   </div>
@@ -797,7 +797,7 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
                       placeholder="Confirm Password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="w-full px-5 py-3 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-[#00245b]/10 focus:border-[#00245b] transition-all bg-white text-slate-800 text-xs font-medium"
+                      className="w-full px-5 py-3 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-[#00175c]/10 focus:border-[#00175c] transition-all bg-white text-slate-800 text-xs font-medium"
                       id="register-confirm-password-input"
                     />
                   </div>
@@ -813,7 +813,7 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
                     placeholder="Enter ACCA ID (if applicable)"
                     value={accaId}
                     onChange={(e) => setAccaId(e.target.value)}
-                    className="w-full px-5 py-3 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-[#00245b]/10 focus:border-[#00245b] transition-all bg-white text-slate-800 text-xs font-medium"
+                    className="w-full px-5 py-3 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-[#00175c]/10 focus:border-[#00175c] transition-all bg-white text-slate-800 text-xs font-medium"
                     id="register-acca-input"
                   />
                 </div>
@@ -833,7 +833,7 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
                           onClick={() => handleClassToggle(cls.id)}
                           className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition-all border cursor-pointer ${
                             isSelected 
-                              ? 'bg-[#00245b] border-[#00245b] text-white shadow-xs' 
+                              ? 'bg-[#00175c] border-[#00175c] text-white shadow-xs' 
                               : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'
                           }`}
                         >
@@ -851,7 +851,7 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-[#00245b] hover:bg-[#00133a] text-white py-3 rounded-full font-bold transition-all shadow-md hover:shadow-lg text-xs uppercase tracking-wider cursor-pointer flex justify-center items-center gap-2 mt-6 disabled:bg-slate-300 disabled:cursor-not-allowed"
+                  className="w-full bg-[#00175c] hover:bg-[#00133a] text-white py-3 rounded-full font-bold transition-all shadow-md hover:shadow-lg text-xs uppercase tracking-wider cursor-pointer flex justify-center items-center gap-2 mt-6 disabled:bg-slate-300 disabled:cursor-not-allowed"
                   id="register-submit-btn"
                 >
                   <span>{loading ? 'Creating Account...' : 'Create Account'}</span>
@@ -866,7 +866,7 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
                       setActiveTab('student');
                       setError(null);
                     }}
-                    className="text-[#00245b] hover:underline font-black cursor-pointer"
+                    className="text-[#00175c] hover:underline font-black cursor-pointer"
                     id="login-link-btn"
                   >
                     Login
@@ -899,7 +899,7 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
               {/* Verified secure badge overlay */}
               <div className="absolute bottom-6 right-6 bg-white/90 backdrop-blur-md border border-slate-100 px-3.5 py-2 rounded-2xl flex items-center gap-2 shadow-sm z-20" id="verified-security-badge">
                 <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-[10px] font-black uppercase text-[#00245b] tracking-wider">End-to-End Encrypted</span>
+                <span className="text-[10px] font-black uppercase text-[#00175c] tracking-wider">End-to-End Encrypted</span>
               </div>
             </div>
           </div>
@@ -913,10 +913,10 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
           
           {/* Header */}
           <div className="text-center space-y-3">
-            <span className="text-[10px] uppercase font-black tracking-widest text-[#00245b] bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100/50">
+            <span className="text-[10px] uppercase font-black tracking-widest text-[#00175c] bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100/50">
               {lang === 'en' ? 'Our Premium Syllabus' : 'ہمارا بہترین سلیبس'}
             </span>
-            <h3 className="text-3xl md:text-4xl font-black text-[#00245b] font-display tracking-tight">
+            <h3 className="text-3xl md:text-4xl font-black text-[#00175c] font-display tracking-tight">
               {lang === 'en' ? 'Explore 9th & 10th Class Batches' : 'نویں اور دسویں جماعت کے کورسز'}
             </h3>
             <p className="text-slate-500 font-medium max-w-xl mx-auto text-xs md:text-sm leading-relaxed">
@@ -933,7 +933,7 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
               onClick={() => setSelectedShowcaseClass('9th')}
               className={`px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer border ${
                 selectedShowcaseClass === '9th' 
-                  ? 'bg-[#00245b] text-white border-[#00245b] shadow-md shadow-[#00245b]/10' 
+                  ? 'bg-[#00175c] text-white border-[#00175c] shadow-md shadow-[#00175c]/10' 
                   : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
               }`}
             >
@@ -944,7 +944,7 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
               onClick={() => setSelectedShowcaseClass('10th')}
               className={`px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer border ${
                 selectedShowcaseClass === '10th' 
-                  ? 'bg-[#00245b] text-white border-[#00245b] shadow-md shadow-[#00245b]/10' 
+                  ? 'bg-[#00175c] text-white border-[#00175c] shadow-md shadow-[#00175c]/10' 
                   : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
               }`}
             >
@@ -965,7 +965,7 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
                     <div className={`w-10 h-10 rounded-2xl bg-gradient-to-br ${course.color} flex items-center justify-center shadow-sm`}>
                       {renderCourseIcon(course.icon)}
                     </div>
-                    <span className="text-[9px] bg-indigo-50 text-[#00245b] font-black px-2 py-0.5 rounded-md uppercase tracking-wider">
+                    <span className="text-[9px] bg-indigo-50 text-[#00175c] font-black px-2 py-0.5 rounded-md uppercase tracking-wider">
                       {selectedShowcaseClass} Prep
                     </span>
                   </div>
@@ -1006,7 +1006,7 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
                     // Smooth scroll up to signup form
                     document.getElementById('welcome-container')?.scrollIntoView({ behavior: 'smooth' });
                   }}
-                  className="w-full mt-6 bg-[#00245b]/5 hover:bg-[#00245b] text-[#00245b] hover:text-white py-2.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="w-full mt-6 bg-[#00175c]/5 hover:bg-[#00175c] text-[#00175c] hover:text-white py-2.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <span>{lang === 'en' ? 'Register Now' : 'داخلہ لیں'}</span>
                   <span>↗</span>
@@ -1016,7 +1016,7 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
           </div>
 
           {/* Quick trust metrics */}
-          <div className="bg-[#00245b] text-white rounded-3xl p-6 md:p-8 grid grid-cols-1 md:grid-cols-3 gap-6 text-center divide-y md:divide-y-0 md:divide-x divide-white/10 shadow-lg">
+          <div className="bg-[#00175c] text-white rounded-3xl p-6 md:p-8 grid grid-cols-1 md:grid-cols-3 gap-6 text-center divide-y md:divide-y-0 md:divide-x divide-white/10 shadow-lg">
             <div className="space-y-1 py-2 md:py-0">
               <p className="text-2xl font-black text-yellow-400">100%</p>
               <p className="text-[10px] font-bold text-white/70 uppercase tracking-wider">{lang === 'en' ? 'Board Syllabus Coverage' : 'بورڈ نصاب کا مکمل احاطہ'}</p>
@@ -1032,9 +1032,9 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
           </div>
 
           {/* Flyer-Style Admissions & Contact Banner */}
-          <div className="mt-8 bg-gradient-to-r from-[#00173d] to-[#00245b] text-white rounded-3xl p-6 md:p-8 border border-yellow-400/30 shadow-xl relative overflow-hidden" id="flyer-contact-banner">
+          <div className="mt-8 bg-gradient-to-r from-[#00173d] to-[#00175c] text-white rounded-3xl p-6 md:p-8 border border-yellow-400/30 shadow-xl relative overflow-hidden" id="flyer-contact-banner">
             <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-400/5 rounded-full blur-2xl -mr-10 -mt-10"></div>
-            <div className="absolute bottom-0 left-0 w-32 h-32 bg-[#004aad]/20 rounded-full blur-2xl -ml-10 -mb-10"></div>
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-[#00175c]/20 rounded-full blur-2xl -ml-10 -mb-10"></div>
             
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center relative z-10">
               
@@ -1058,7 +1058,7 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
 
               {/* Campus Location Box */}
               <div className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/10 hover:border-yellow-400/40 transition-all group">
-                <div className="bg-[#004aad] text-white p-3 rounded-xl flex items-center justify-center shadow-md shadow-blue-500/20 group-hover:scale-110 transition-transform">
+                <div className="bg-[#00175c] text-white p-3 rounded-xl flex items-center justify-center shadow-md shadow-blue-500/20 group-hover:scale-110 transition-transform">
                   <MapPin size={22} />
                 </div>
                 <div>
@@ -1070,12 +1070,12 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
               </div>
 
               {/* Session / Academic Head Badge */}
-              <div className="flex flex-col sm:flex-row lg:flex-col items-center justify-center gap-4 bg-yellow-400 text-[#00245b] p-5 rounded-2xl font-display shadow-lg border border-yellow-300">
+              <div className="flex flex-col sm:flex-row lg:flex-col items-center justify-center gap-4 bg-yellow-400 text-[#00175c] p-5 rounded-2xl font-display shadow-lg border border-yellow-300">
                 <div className="text-center">
                   <span className="text-[9px] uppercase font-black tracking-widest opacity-80 block">{lang === 'en' ? 'Now Enrolling' : 'داخلے جاری ہیں'}</span>
                   <span className="text-xl font-black tracking-tighter uppercase block leading-none mt-1">SESSION 2026-27</span>
                 </div>
-                <div className="w-full h-px bg-[#00245b]/10 sm:w-px sm:h-8 lg:w-full lg:h-px my-1"></div>
+                <div className="w-full h-px bg-[#00175c]/10 sm:w-px sm:h-8 lg:w-full lg:h-px my-1"></div>
                 <div className="text-center">
                   <span className="text-[9px] uppercase font-black tracking-widest opacity-80 block">{lang === 'en' ? 'Academic Head' : 'اکیڈمک ہیڈ'}</span>
                   <span className="text-sm font-black tracking-tight block leading-none mt-1">SIR ALI ASLAM</span>

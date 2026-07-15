@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../utils/api';
 import { User, ClassRoom, Subject, StudentAccess } from '../types';
-import { ShieldCheck, ToggleLeft, CheckSquare, Square, RefreshCw, Info } from 'lucide-react';
+import { ShieldCheck, ToggleLeft, CheckSquare, Square, RefreshCw, Info, Lock, Unlock } from 'lucide-react';
 
 export default function AdminAccessMatrix() {
   const [students, setStudents] = useState<User[]>([]);
@@ -115,51 +115,53 @@ export default function AdminAccessMatrix() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <RefreshCw size={24} className="animate-spin text-sky-500" />
+      <div className="flex flex-col items-center justify-center h-64 space-y-4">
+        <RefreshCw size={24} className="animate-spin text-blue-600" />
+        <p className="text-xs font-bold text-blue-600 uppercase tracking-widest">Refreshing authorization grid...</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-xs space-y-5 animate-fade-in" id="access-matrix-root">
+    <div className="bg-white rounded-2xl border-2 border-slate-100 p-5 shadow-xs space-y-5 animate-fade-in text-slate-800" id="access-matrix-root">
       
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-gray-50 pb-3">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-100 pb-3">
         <div>
-          <h3 className="text-sm font-bold text-slate-800 font-display flex items-center gap-1.5">
-            <ShieldCheck size={16} className="text-sky-500" />
+          <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest flex items-center gap-1.5">
+            <ShieldCheck size={16} className="text-blue-600" />
             <span>Institutional Access Authorization Matrix</span>
           </h3>
-          <p className="text-[11px] text-gray-400">Checkbox-driven permissions. Changes apply instantly to student logins.</p>
+          <p className="text-[11px] text-slate-400 mt-0.5 font-semibold">Instantly toggle class and subject access permissions for individual students.</p>
         </div>
         <button 
           onClick={loadMatrix}
-          className="px-3 py-1.5 border border-slate-200 hover:bg-slate-50 text-slate-600 rounded-xl text-xs font-semibold cursor-pointer"
+          className="px-4 py-2 border-2 border-blue-600 text-blue-600 hover:bg-blue-50 rounded-xl text-xs font-black uppercase tracking-widest cursor-pointer transition-colors"
         >
           Refresh Grid
         </button>
       </div>
 
-      {/* Info Warning Bar */}
-      <div className="bg-sky-50 border border-sky-100 p-3.5 rounded-xl flex gap-2 text-xs text-sky-800 leading-relaxed" id="matrix-info">
-        <Info size={18} className="text-sky-500 shrink-0 mt-0.5" />
+      {/* Info Warning Bar (strictly yellow theme) */}
+      <div className="bg-yellow-50 border-2 border-yellow-200 p-4 rounded-xl flex gap-2 text-xs text-yellow-900 leading-relaxed font-semibold" id="matrix-info">
+        <Info size={18} className="text-yellow-600 shrink-0 mt-0.5" />
         <div>
-          <span className="font-bold">Inheritance Rule:</span> Unlocking an entire Class slot (e.g. 9th Grade) automatically grants permission to <span className="font-bold">all subjects</span> inside that class folder. In this case, subject checkboxes are pre-checked and disabled (showing "via class access") to maintain structural integrity.
+          <span className="font-extrabold uppercase text-yellow-950 block mb-1">💡 Access Inheritance Rule</span>
+          Unlocking an entire Class slot (e.g. 9th Grade) automatically grants permission to <span className="underline decoration-2">all subjects</span> inside that class. In this case, subject checkboxes are pre-checked and locked (showing "via class access") to prevent mistakes.
         </div>
       </div>
 
       {/* Access Grid Table */}
-      <div className="overflow-x-auto border border-gray-100 rounded-xl" id="matrix-scrollable-table">
+      <div className="overflow-x-auto border-2 border-slate-100 rounded-2xl" id="matrix-scrollable-table">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-slate-50/50 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-              <th className="py-3 pl-4 min-w-[160px]">Student / GR Profile</th>
+            <tr className="bg-slate-50/50 border-b-2 border-slate-100 text-[10px] font-black text-slate-400 uppercase tracking-wider">
+              <th className="py-4.5 pl-4 min-w-[180px] border-r border-slate-100">Student Profile / GR</th>
               
               {/* Render Class Headers */}
               {classes.map(cls => (
-                <th key={cls.id} className="py-3 px-4 border-r border-slate-100/60 text-center min-w-[120px]">
-                  <div className="font-bold text-slate-700">{cls.name}</div>
-                  <div className="text-[9px] text-slate-400 normal-case font-medium">Whole Grade Slot</div>
+                <th key={cls.id} className="py-4.5 px-4 border-r border-slate-100 text-center min-w-[140px]">
+                  <div className="font-black text-blue-900 uppercase tracking-wide leading-tight">{cls.name}</div>
+                  <div className="text-[8px] text-slate-400 normal-case font-bold uppercase mt-0.5">Whole Class Folder</div>
                 </th>
               ))}
 
@@ -167,27 +169,27 @@ export default function AdminAccessMatrix() {
               {subjects.map(sub => {
                 const parentClass = classes.find(c => c.id === sub.classId);
                 return (
-                  <th key={sub.id} className="py-3 px-4 text-center min-w-[120px]">
-                    <div className="font-bold text-slate-700">{sub.name}</div>
-                    <div className="text-[9px] text-slate-400 normal-case font-medium">
+                  <th key={sub.id} className="py-4.5 px-4 text-center border-r border-slate-100 last:border-r-0 min-w-[140px]">
+                    <div className="font-black text-blue-900 uppercase tracking-wide leading-tight">{sub.name}</div>
+                    <div className="text-[8px] text-slate-400 normal-case font-bold uppercase mt-0.5">
                       {parentClass ? `via ${parentClass.name}` : 'Course Subject'}
                     </div>
                   </th>
                 );
               })}
 
-              <th className="py-3 px-4 pr-4 text-right">Quick Helpers</th>
+              <th className="py-4.5 px-4 pr-4 text-right min-w-[150px]">Quick Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 text-xs">
+          <tbody className="divide-y divide-slate-100 text-xs font-semibold">
             {students.map((student) => {
               const isBulkUpdating = updatingId === `bulk-${student.id}`;
               return (
                 <tr key={student.id} className="hover:bg-slate-50/30" id={`matrix-row-${student.id}`}>
                   {/* Student GR details column */}
-                  <td className="py-3.5 pl-4 border-r border-slate-100">
-                    <div className="font-bold text-slate-800">{student.name}</div>
-                    <div className="text-[10px] text-gray-400 font-mono font-semibold">GR: {student.grNumber}</div>
+                  <td className="py-4 pl-4 border-r border-slate-100">
+                    <div className="font-extrabold text-blue-950">{student.name}</div>
+                    <div className="text-[10px] text-slate-400 font-mono font-bold">GR Number: {student.grNumber}</div>
                   </td>
 
                   {/* Class Column Checkboxes */}
@@ -197,22 +199,22 @@ export default function AdminAccessMatrix() {
                     const isUpdating = updatingId === cellKey || isBulkUpdating;
 
                     return (
-                      <td key={cls.id} className="py-3.5 px-4 text-center border-r border-slate-100/60" id={`matrix-cell-${student.id}-${cls.id}`}>
+                      <td key={cls.id} className="py-4 px-4 text-center border-r border-slate-100" id={`matrix-cell-${student.id}-${cls.id}`}>
                         <button
                           disabled={isUpdating}
                           onClick={() => handleToggleClass(student.id, cls.id, isUnlocked)}
-                          className={`inline-flex items-center justify-center p-1.5 rounded-lg border transition-all cursor-pointer ${
+                          className={`inline-flex items-center justify-center p-2 rounded-xl border-2 transition-all cursor-pointer ${
                             isUnlocked 
-                              ? 'bg-sky-50 border-sky-300 text-sky-600' 
-                              : 'border-slate-200 hover:border-sky-300 text-slate-300 hover:text-slate-400'
+                              ? 'bg-blue-50 border-blue-600 text-blue-600' 
+                              : 'border-slate-200 hover:border-blue-600 text-slate-300 hover:text-slate-500 bg-white'
                           }`}
                         >
                           {isUpdating ? (
-                            <RefreshCw size={14} className="animate-spin text-sky-500" />
+                            <RefreshCw size={14} className="animate-spin text-blue-600" />
                           ) : isUnlocked ? (
-                            <CheckSquare size={14} fill="currentColor" className="text-white" />
+                            <Unlock size={14} strokeWidth={2.5} />
                           ) : (
-                            <Square size={14} />
+                            <Lock size={14} strokeWidth={2.5} />
                           )}
                         </button>
                       </td>
@@ -227,27 +229,27 @@ export default function AdminAccessMatrix() {
                     const isUpdating = updatingId === cellKey || isBulkUpdating;
 
                     return (
-                      <td key={sub.id} className="py-3.5 px-4 text-center" id={`matrix-cell-${student.id}-${sub.id}`}>
+                      <td key={sub.id} className="py-4 px-4 text-center border-r border-slate-100 last:border-r-0" id={`matrix-cell-${student.id}-${sub.id}`}>
                         <button
                           disabled={isClassOwned || isUpdating}
                           onClick={() => handleToggleSubject(student.id, sub.classId, sub.id, isUnlocked)}
-                          className={`inline-flex items-center justify-center p-1.5 rounded-lg border transition-all ${
+                          className={`inline-flex items-center justify-center p-2 rounded-xl border-2 transition-all ${
                             isClassOwned 
-                              ? 'bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed' 
+                              ? 'bg-blue-50 border-blue-200 text-blue-400 cursor-not-allowed opacity-60' 
                               : isUnlocked 
-                                ? 'bg-amber-50 border-amber-300 text-amber-600 cursor-pointer' 
-                                : 'border-slate-200 hover:border-amber-300 text-slate-300 hover:text-slate-400 cursor-pointer'
+                                ? 'bg-yellow-50 border-yellow-400 text-yellow-700 cursor-pointer' 
+                                : 'border-slate-200 hover:border-blue-600 text-slate-300 hover:text-slate-500 bg-white cursor-pointer'
                           }`}
-                          title={isClassOwned ? 'Unlocked implicitly via the whole Class Grade Slot permission' : 'Grant or revoke subject access'}
+                          title={isClassOwned ? 'Unlocked implicitly via Whole Class permission' : 'Grant or revoke subject access'}
                         >
                           {isUpdating ? (
-                            <RefreshCw size={14} className="animate-spin text-amber-500" />
+                            <RefreshCw size={14} className="animate-spin text-blue-600" />
                           ) : isClassOwned ? (
-                            <CheckSquare size={14} fill="currentColor" className="text-slate-200" />
+                            <Unlock size={14} strokeWidth={2.5} className="text-blue-500" />
                           ) : isUnlocked ? (
-                            <CheckSquare size={14} fill="currentColor" className="text-white" />
+                            <Unlock size={14} strokeWidth={2.5} />
                           ) : (
-                            <Square size={14} />
+                            <Lock size={14} strokeWidth={2.5} />
                           )}
                         </button>
                       </td>
@@ -255,20 +257,20 @@ export default function AdminAccessMatrix() {
                   })}
 
                   {/* Bulk Select actions */}
-                  <td className="py-3.5 px-4 pr-4 text-right space-x-1.5 whitespace-nowrap border-l border-slate-100">
+                  <td className="py-4 px-4 pr-4 text-right space-x-1.5 whitespace-nowrap border-l border-slate-100">
                     <button
                       disabled={isBulkUpdating}
                       onClick={() => handleSelectAllForStudent(student.id)}
-                      className="text-[9px] font-bold px-2 py-1 border border-sky-100 text-sky-600 hover:bg-sky-50 rounded-lg cursor-pointer"
+                      className="text-[9px] font-black uppercase tracking-widest px-2 py-1.5 border-2 border-blue-600 text-blue-600 hover:bg-blue-50 rounded-xl cursor-pointer transition-all"
                     >
                       Unlock All
                     </button>
                     <button
                       disabled={isBulkUpdating}
                       onClick={() => handleRestrictAllForStudent(student.id)}
-                      className="text-[9px] font-bold px-2 py-1 border border-red-100 text-red-500 hover:bg-red-50 rounded-lg cursor-pointer"
+                      className="text-[9px] font-black uppercase tracking-widest px-2 py-1.5 border-2 border-slate-200 text-slate-500 hover:bg-slate-50 rounded-xl cursor-pointer transition-all"
                     >
-                      Restrict All
+                      Lock All
                     </button>
                   </td>
 
@@ -277,7 +279,7 @@ export default function AdminAccessMatrix() {
             })}
             {students.length === 0 && (
               <tr>
-                <td colSpan={classes.length + subjects.length + 2} className="py-8 text-center text-slate-400 text-xs">
+                <td colSpan={classes.length + subjects.length + 2} className="py-12 text-center text-slate-400 font-semibold text-xs">
                   No registered student accounts in the institution database.
                 </td>
               </tr>

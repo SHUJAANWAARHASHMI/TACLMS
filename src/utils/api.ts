@@ -90,6 +90,13 @@ export const api = {
     setApiUser(null);
   },
 
+  changePassword: async (currentPassword: string, newPassword: string): Promise<{ message: string }> => {
+    return apiRequest<{ message: string }>('/api/auth/change-password', {
+      method: 'POST',
+      body: JSON.stringify({ currentPassword, newPassword })
+    });
+  },
+
   getMe: async () => {
     if (!currentUserId) return null;
     try {
@@ -295,7 +302,7 @@ export const api = {
 
   // --- PROGRESS ---
   getProgress: () => apiRequest<Progress[]>('/api/progress'),
-  markAsCompleted: (itemId: string, itemType: 'note' | 'video') => 
+  markAsCompleted: (itemId: string, itemType: string, score?: number, maxScore?: number) => 
     apiRequest<{ 
       success: boolean; 
       xpEarned: number; 
@@ -303,9 +310,10 @@ export const api = {
       newLevel: number; 
     }>('/api/progress/mark-done', {
       method: 'POST',
-      body: JSON.stringify({ itemId, itemType })
+      body: JSON.stringify({ itemId, itemType, score, maxScore })
     }),
   getLeaderboard: () => apiRequest<{ leaderboard: any[] }>('/api/student-stats'),
+  getRankings: () => apiRequest<{ rankings: any[] }>('/api/students/rankings'),
 
   // --- ANNOUNCEMENTS ---
   getAnnouncements: () => apiRequest<Announcement[]>('/api/announcements'),

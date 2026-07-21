@@ -41,7 +41,7 @@ export default function AdminSupabase() {
     }
   };
 
-  const sqlCode = `-- 1. Create Auxiliary Tables if not existing
+  const sqlCode = `-- 1. Create Auxiliary & Feature Tables if not existing
 CREATE TABLE IF NOT EXISTS lms_state (
   key TEXT PRIMARY KEY,
   value JSONB NOT NULL,
@@ -54,6 +54,24 @@ CREATE TABLE IF NOT EXISTS user_credentials (
   email TEXT UNIQUE NOT NULL,
   password_text TEXT NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS topics (
+  id TEXT PRIMARY KEY,
+  chapter_id TEXT NOT NULL,
+  title TEXT NOT NULL,
+  chapter_order INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS topic_contents (
+  topic_id TEXT PRIMARY KEY REFERENCES topics(id) ON DELETE CASCADE,
+  video_url TEXT,
+  video_title TEXT,
+  mcqs JSONB,
+  past_papers JSONB,
+  notes_text TEXT,
+  important_points JSONB,
+  feedback_enabled BOOLEAN DEFAULT true
 );
 
 -- 2. Disable Row Level Security (RLS) on ALL tables so the LMS can sync data smoothly
@@ -74,7 +92,9 @@ ALTER TABLE IF EXISTS bookmarks DISABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS progress DISABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS audit_logs DISABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS attendance DISABLE ROW LEVEL SECURITY;
-ALTER TABLE IF EXISTS user_credentials DISABLE ROW LEVEL SECURITY;`;
+ALTER TABLE IF EXISTS user_credentials DISABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS topics DISABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS topic_contents DISABLE ROW LEVEL SECURITY;`;
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(sqlCode);

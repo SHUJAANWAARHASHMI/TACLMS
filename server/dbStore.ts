@@ -277,10 +277,29 @@ export async function saveToSupabase(data: DBStructure) {
     const syncErrors = await saveToIndividualTables(data);
     if (syncErrors.length > 0) {
       const isRls = syncErrors.some(e => e.toLowerCase().includes('row-level security') || e.toLowerCase().includes('rls') || e.toLowerCase().includes('policy'));
+      
+      // Filter out missing table warnings from critical errors
+      const missingTableErrors = syncErrors.filter(e => 
+        e.toLowerCase().includes('does not exist') || 
+        e.toLowerCase().includes('schema cache') || 
+        e.toLowerCase().includes('not found') ||
+        e.toLowerCase().includes('relation')
+      );
+      
+      const criticalErrors = syncErrors.filter(e => !missingTableErrors.includes(e));
+
       if (isRls) {
         throw new Error(`Row Level Security (RLS) is blocking data saving on Supabase tables. Please copy the complete SQL script from the setup panel and run it in your Supabase SQL Editor to disable RLS for all tables.\n\nFailed tables:\n- ${syncErrors.join('\n- ')}`);
+      } else if (criticalErrors.length > 0) {
+        throw new Error(`Failed to write tables to Supabase:\n- ${criticalErrors.join('\n- ')}`);
       } else {
-        throw new Error(`Failed to write tables to Supabase:\n- ${syncErrors.join('\n- ')}`);
+        // Only non-critical missing table warnings found. Proceed gracefully as other existing tables synchronized.
+        console.warn('Some optional tables are missing on Supabase. Proceeding gracefully as other tables succeeded:\n-', missingTableErrors.join('\n- '));
+        supabaseStatus.connected = true;
+        supabaseStatus.lastSync = new Date().toISOString();
+        const missingNames = missingTableErrors.map(e => e.split(':')[0]).join(', ');
+        supabaseStatus.error = `Warning: Some tables are missing in Supabase (${missingNames}). Please copy and run the complete SQL script from the setup panel to create them.`;
+        return;
       }
     }
 

@@ -1,0 +1,22 @@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Rounded square background of exact brand color #00175c -->
+  <rect width="512" height="512" rx="112" fill="#00175c" />
+  
+  <!-- Subtle inner gradient or aesthetic circle backing (optional, let's keep it incredibly crisp and elegant) -->
+  <circle cx="256" cy="256" r="180" fill="#00175c" stroke="#facc15" stroke-dasharray="12 10" stroke-width="4" opacity="0.3" />
+
+  <!-- Graduation Cap (golden yellow #facc15) centered in the 512x512 canvas -->
+  <g fill="#facc15" stroke="#facc15" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Top Diamond Plate -->
+    <path d="M 256,120 L 440,200 L 256,280 L 72,200 Z" stroke-width="12" />
+    
+    <!-- Cap Bowl Base (thick, filled shape with rounded bottom) -->
+    <path d="M 152,245 L 152,320 C 152,370 360,370 360,320 L 360,245" stroke-width="16" fill="none" />
+    <path d="M 152,320 C 152,370 360,370 360,320" fill="#facc15" />
+    
+    <!-- Tassel String and Pendant -->
+    <path d="M 256,200 C 370,210 400,240 405,280" stroke-width="12" fill="none" />
+    <circle cx="405" cy="295" r="12" fill="#facc15" />
+  </g>
+</svg>

@@ -29,6 +29,7 @@ import AdminAttendance from './components/AdminAttendance';
 import AdminSupabase from './components/AdminSupabase';
 import StudentTestimonials from './components/StudentTestimonials';
 import AdminTestimonials from './components/AdminTestimonials';
+import AiChatbot from './components/AiChatbot';
 
 import { 
   BookOpen, FolderOpen, HelpCircle, ClipboardList, Calendar, Bookmark, 
@@ -45,6 +46,7 @@ export default function App() {
   const [lang, setLang] = useState<'en' | 'ur'>('en');
   const [activeStudentTab, setActiveStudentTab] = useState<StudentTab>('dashboard');
   const [activeAdminTab, setActiveAdminTab] = useState<AdminTab>('dashboard');
+  const [isAdminAiChatOpen, setIsAdminAiChatOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
   // Responsive mobile menu
@@ -764,6 +766,31 @@ export default function App() {
             <span className="text-[9px] font-black uppercase tracking-wider">{lang === 'en' ? 'Profile' : 'پروفائل'}</span>
           </button>
         </div>
+      )}
+
+      {/* ADMIN FLOATING AI TUTOR TEST TRIGGERS */}
+      {user && user.role === 'admin' && (
+        <>
+          <button
+            onClick={() => setIsAdminAiChatOpen(true)}
+            className="fixed bottom-6 right-6 z-40 bg-blue-600 text-[#facc15] hover:text-white border-2 border-[#facc15] hover:border-white p-3.5 rounded-full shadow-2xl hover:scale-110 transition-all cursor-pointer flex items-center gap-2 font-black text-xs uppercase tracking-wider animate-bounce"
+            style={{ animationDuration: '3.5s' }}
+            id="admin-floating-ai-trigger"
+          >
+            <Sparkles size={18} fill="currentColor" className="animate-pulse" />
+            <span className="hidden sm:inline">Lecturer AI Hub</span>
+          </button>
+
+          {isAdminAiChatOpen && (
+            <div className="fixed inset-0 bg-[#00175c]/50 backdrop-blur-xs z-50 flex justify-end animate-fade-in text-slate-800" id="admin-ai-drawer">
+              <div className="bg-white w-full max-w-lg h-full flex flex-col shadow-2xl relative border-l-4 border-blue-600 animate-slide-in">
+                <div className="flex-1 p-4 overflow-hidden flex flex-col h-full">
+                  <AiChatbot user={user} onBack={() => setIsAdminAiChatOpen(false)} />
+                </div>
+              </div>
+            </div>
+          )}
+        </>
       )}
 
     </div>

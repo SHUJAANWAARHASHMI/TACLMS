@@ -51,6 +51,7 @@ export interface Note {
   id: string;
   chapterId: string;
   title: string;
+  content?: string; // Rich inline text content
   fileUrl: string; // Path on disk
   originalName: string;
   fileType: string;
@@ -209,5 +210,36 @@ export interface Testimonial {
   feedback: string;
   isApproved: boolean;
   createdAt: string;
+}
+
+export interface MCQQuestion {
+  id: number;
+  q: string;
+  options: string[];
+  correct: number;
+  explanation?: string;
+}
+
+export interface PastPaperItem {
+  year: string;
+  q: string;
+}
+
+export interface Topic {
+  id: string;
+  chapterId: string;
+  title: string;
+  order: number;
+}
+
+export interface TopicContent {
+  topicId: string;
+  videoUrl?: string;
+  videoTitle?: string;
+  mcqs?: MCQQuestion[];
+  pastPapers?: PastPaperItem[];
+  notesText?: string;
+  importantPoints?: string[];
+  feedbackEnabled?: boolean;
 }
 

@@ -168,114 +168,36 @@ export default function StudentProgress({ user, lang }: StudentProgressProps) {
 
       </div>
 
-      {/* Classmate Leaderboard & Academic Badges Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        {/* Class Standings Leaderboard (2 Columns) */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-xs lg:col-span-2 space-y-4">
-          <div className="flex justify-between items-center border-b border-slate-50 pb-3">
-            <div>
-              <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest flex items-center gap-1.5">
-                <Trophy size={14} className="text-yellow-500 fill-yellow-400/10" />
-                <span>Classmate Leaderboard</span>
-              </h3>
-              <p className="text-xs text-slate-400 mt-0.5">Weekly scoreboard based on active lecture watch times and test marks</p>
-            </div>
-            
-            {/* Optional leaderboard toggle */}
-            <label className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider select-none cursor-pointer">
-              <span>Show Leaderboard</span>
-              <input 
-                type="checkbox" 
-                checked={showClassmateLeaderboard} 
-                onChange={() => setShowClassmateLeaderboard(!showClassmateLeaderboard)}
-                className="rounded text-[#004aad] focus:ring-[#004aad]/20 h-3.5 w-3.5 cursor-pointer bg-slate-100 border-slate-200"
-              />
-            </label>
-          </div>
-
-          {showClassmateLeaderboard ? (
-            <div className="space-y-2">
-              {leaderboard.map((student, idx) => {
-                const isCurrentUser = student.id === user.id;
-                return (
-                  <div 
-                    key={student.id} 
-                    className={`flex justify-between items-center p-2.5 rounded-xl border text-xs font-semibold ${
-                      isCurrentUser 
-                        ? 'bg-[#004aad]/5 border-[#004aad]/30 shadow-3xs' 
-                        : 'bg-slate-50/50 border-slate-100 hover:border-slate-200'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      {/* Rank Indicator */}
-                      <span className={`w-5 h-5 rounded-full flex items-center justify-center font-black text-[10px] font-mono ${
-                        idx === 0 
-                          ? 'bg-yellow-400 text-slate-900 shadow-3xs' 
-                          : idx === 1 
-                          ? 'bg-slate-300 text-slate-800' 
-                          : idx === 2 
-                          ? 'bg-amber-600 text-white' 
-                          : 'bg-slate-100 text-slate-500'
-                      }`}>
-                        {idx + 1}
-                      </span>
-
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-bold text-slate-800 truncate">{student.name}</span>
-                        {isCurrentUser && (
-                          <span className="bg-[#004aad] text-white text-[8px] px-1 rounded uppercase tracking-wider">You</span>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-4 text-[11px] font-mono font-bold text-slate-500">
-                      <span>Level {student.level}</span>
-                      <span className="text-[#004aad]">{student.xp} XP</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="p-8 text-center bg-slate-50/40 rounded-2xl border border-dashed text-slate-400 text-xs">
-              Class standings leaderboard is currently hidden. Toggle to opt back in.
-            </div>
-          )}
+      {/* Academic Badges Full-Width Panel */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-xs space-y-4">
+        <div>
+          <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest flex items-center gap-1.5">
+            <Award size={14} className="text-yellow-500" />
+            <span>Collegiate Badges</span>
+          </h3>
+          <p className="text-xs text-slate-400 mt-0.5 font-semibold">Earn digital pins by studying regularly on the portal</p>
         </div>
 
-        {/* Visual Achievements list (1 Column) */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-xs space-y-4">
-          <div>
-            <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest flex items-center gap-1.5">
-              <Award size={14} className="text-yellow-500" />
-              <span>Collegiate Badges</span>
-            </h3>
-            <p className="text-xs text-slate-400 mt-0.5 font-semibold">Earn digital pins by studying regularly</p>
-          </div>
-
-          <div className="space-y-3">
-            {badgesList.map((badge) => (
-              <div 
-                key={badge.id}
-                className={`flex gap-3 p-2.5 rounded-xl border transition-all ${
-                  badge.active 
-                    ? 'border-yellow-200/50 bg-amber-50/10' 
-                    : 'border-slate-100 opacity-40 bg-slate-50/30'
-                }`}
-              >
-                <div className={`p-2 rounded-lg shrink-0 ${badge.active ? badge.color : 'bg-slate-100 text-slate-400'}`}>
-                  <Award size={18} />
-                </div>
-                <div className="min-w-0 py-0.5">
-                  <h4 className="text-xs font-bold text-slate-800">{badge.title}</h4>
-                  <p className="text-[10px] text-gray-400 font-semibold leading-normal truncate mt-0.5">{badge.desc}</p>
-                </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {badgesList.map((badge) => (
+            <div 
+              key={badge.id}
+              className={`flex gap-3 p-3.5 rounded-xl border transition-all ${
+                badge.active 
+                  ? 'border-yellow-200/50 bg-amber-50/10 shadow-3xs' 
+                  : 'border-slate-100 opacity-40 bg-slate-50/30'
+              }`}
+            >
+              <div className={`p-2.5 rounded-lg shrink-0 ${badge.active ? badge.color : 'bg-slate-100 text-slate-400'}`}>
+                <Award size={18} />
               </div>
-            ))}
-          </div>
+              <div className="min-w-0 py-0.5">
+                <h4 className="text-xs font-bold text-slate-800">{badge.title}</h4>
+                <p className="text-[10px] text-gray-400 font-semibold leading-normal truncate mt-0.5">{badge.desc}</p>
+              </div>
+            </div>
+          ))}
         </div>
-
       </div>
 
       {/* Attendance History stats */}

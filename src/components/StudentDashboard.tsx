@@ -218,7 +218,102 @@ export default function StudentDashboard({
           <span className="absolute bottom-0 right-0 h-3 w-3 bg-emerald-500 border-2 border-white rounded-full"></span>
         </button>
       </motion.div>
+      
+      {/* 1.5 PORTAL STEP-BY-STEP USE GUIDE BANNER */}
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.05 }}
+        className="bg-gradient-to-br from-indigo-50/50 via-sky-50/40 to-white border-2 border-sky-100 rounded-3xl p-6 shadow-sm relative overflow-hidden"
+        id="portal-step-by-step-guide"
+      >
+        {/* Background ambient accents */}
+        <div className="absolute right-0 top-0 w-32 h-32 bg-sky-200/20 rounded-full blur-2xl pointer-events-none"></div>
 
+        <div className="space-y-4">
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#004aad] text-white shadow-md animate-pulse">
+              <Sparkles size={18} fill="currentColor" />
+            </span>
+            <div>
+              <h2 className="text-base md:text-lg font-black text-[#00175c] tracking-tight font-display">
+                {lang === 'en' ? 'Step-by-Step Guide to Use the Portal' : 'پورٹل استعمال کرنے کا طریقہ کار (اسٹیپ بائی اسٹیپ گائیڈ)'}
+              </h2>
+              <p className="text-xs text-slate-500 font-bold mt-0.5">
+                {lang === 'en' ? 'Follow these 4 simple steps to master your syllabus & get top board results!' : 'بورڈ امتحانات میں بہترین نمبر حاصل کرنے کے لیے ان ۴ آسان طریقوں پر عمل کریں!'}
+              </p>
+            </div>
+          </div>
+
+          {/* Interactive Steps Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 pt-1">
+            {/* Step 1 */}
+            <div className="bg-white/90 backdrop-blur-xs border border-slate-100 rounded-2xl p-4 shadow-3xs flex flex-col justify-between h-36 hover:border-sky-300 hover:shadow-xs transition-all duration-200 group relative overflow-hidden">
+              <div className="absolute top-2 right-2 text-sky-500/10 font-mono font-black text-4xl">01</div>
+              <div className="bg-sky-500 text-white p-2 rounded-xl w-fit group-hover:scale-105 transition-transform">
+                <PlayCircle size={18} className="stroke-[2.5]" />
+              </div>
+              <div className="space-y-1">
+                <h4 className="text-xs font-black text-slate-800">
+                  {lang === 'en' ? '1. Watch Lectures' : '۱. ویڈیوز دیکھیں'}
+                </h4>
+                <p className="text-[10px] text-slate-500 leading-normal font-semibold">
+                  {lang === 'en' ? 'Open the "Videos" tab to view pre-recorded chapter classes.' : 'ویڈیوز ٹیب کھولیں اور اپنے مضامین کے ریکارڈڈ لیکچرز دیکھیں۔'}
+                </p>
+              </div>
+            </div>
+
+            {/* Step 2 */}
+            <div className="bg-white/90 backdrop-blur-xs border border-slate-100 rounded-2xl p-4 shadow-3xs flex flex-col justify-between h-36 hover:border-amber-300 hover:shadow-xs transition-all duration-200 group relative overflow-hidden">
+              <div className="absolute top-2 right-2 text-amber-500/10 font-mono font-black text-4xl">02</div>
+              <div className="bg-amber-500 text-white p-2 rounded-xl w-fit group-hover:scale-105 transition-transform">
+                <FileText size={18} className="stroke-[2.5]" />
+              </div>
+              <div className="space-y-1">
+                <h4 className="text-xs font-black text-slate-800">
+                  {lang === 'en' ? '2. Study Notes' : '۲. نوٹس پڑھیں'}
+                </h4>
+                <p className="text-[10px] text-slate-500 leading-normal font-semibold">
+                  {lang === 'en' ? 'Access clean chapter PDF books, slides and handwritten notes.' : 'نوٹس ٹیب سے سبق کے تفصیلی پی ڈی ایف نوٹس اور سلائیڈز پڑھیں۔'}
+                </p>
+              </div>
+            </div>
+
+            {/* Step 3 */}
+            <div className="bg-white/90 backdrop-blur-xs border border-slate-100 rounded-2xl p-4 shadow-3xs flex flex-col justify-between h-36 hover:border-emerald-300 hover:shadow-xs transition-all duration-200 group relative overflow-hidden">
+              <div className="absolute top-2 right-2 text-emerald-500/10 font-mono font-black text-4xl">03</div>
+              <div className="bg-emerald-500 text-white p-2 rounded-xl w-fit group-hover:scale-105 transition-transform">
+                <Trophy size={18} className="stroke-[2.5]" />
+              </div>
+              <div className="space-y-1">
+                <h4 className="text-xs font-black text-slate-800">
+                  {lang === 'en' ? '3. Solve Quizzes' : '۳. کوئز حل کریں'}
+                </h4>
+                <p className="text-[10px] text-slate-500 leading-normal font-semibold">
+                  {lang === 'en' ? 'Take chapter multiple choice quizzes to test concepts & earn XP.' : 'صحیح جوابات کے انتخاب کے ساتھ معروضی کوئز دے کر پوائنٹس حاصل کریں۔'}
+                </p>
+              </div>
+            </div>
+
+            {/* Step 4 */}
+            <div className="bg-white/90 backdrop-blur-xs border border-slate-100 rounded-2xl p-4 shadow-3xs flex flex-col justify-between h-36 hover:border-purple-300 hover:shadow-xs transition-all duration-200 group relative overflow-hidden">
+              <div className="absolute top-2 right-2 text-purple-500/10 font-mono font-black text-4xl">04</div>
+              <div className="bg-purple-500 text-white p-2 rounded-xl w-fit group-hover:scale-105 transition-transform">
+                <Sparkles size={18} className="stroke-[2.5]" />
+              </div>
+              <div className="space-y-1">
+                <h4 className="text-xs font-black text-slate-800">
+                  {lang === 'en' ? '4. Ask AI Tutor' : '۴. اے آئی استاد سے پوچھیں'}
+                </h4>
+                <p className="text-[10px] text-slate-500 leading-normal font-semibold">
+                  {lang === 'en' ? 'Got any doubt? Use the floating "Lecturer AI Hub" 24/7 for help!' : 'کوئی سوال ہے؟ تیرتا ہوا "AI Hub" بٹن دبا کر فورا جواب پائیں۔'}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+      
       {/* 2. HERO PROGRESS CARD (The emotional anchor) */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}

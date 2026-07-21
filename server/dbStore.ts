@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import { 
   User, ClassRoom, Subject, Chapter, Note, Video, AccessGrant, 
   Announcement, Quiz, QuizAttempt, Assignment, AssignmentSubmission, 
-  Bookmark, Progress, AuditLog, Attendance, UserCredential 
+  Bookmark, Progress, AuditLog, Attendance, UserCredential, Topic, TopicContent 
 } from '../src/types';
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://hxqmadzterpmdbveameg.supabase.co';
@@ -81,7 +81,9 @@ export async function saveToIndividualTables(data: DBStructure) {
     { name: 'progress', rows: data.progress },
     { name: 'audit_logs', rows: data.auditLogs },
     { name: 'attendance', rows: data.attendance },
-    { name: 'user_credentials', rows: data.userCredentials }
+    { name: 'user_credentials', rows: data.userCredentials },
+    { name: 'topics', rows: data.topics },
+    { name: 'topic_contents', rows: data.topicContents }
   ];
 
   const errors: string[] = [];
@@ -125,7 +127,9 @@ export async function loadFromIndividualTables(): Promise<DBStructure | null> {
     'progress': 'progress',
     'audit_logs': 'auditLogs',
     'attendance': 'attendance',
-    'user_credentials': 'userCredentials'
+    'user_credentials': 'userCredentials',
+    'topics': 'topics',
+    'topic_contents': 'topicContents'
   };
 
   const db: any = {};
@@ -214,6 +218,8 @@ export interface DBStructure {
   progress: Progress[];
   auditLogs: AuditLog[];
   attendance: Attendance[];
+  topics?: Topic[];
+  topicContents?: TopicContent[];
 }
 
 const emptyDB: DBStructure = {
@@ -233,7 +239,9 @@ const emptyDB: DBStructure = {
   bookmarks: [],
   progress: [],
   auditLogs: [],
-  attendance: []
+  attendance: [],
+  topics: [],
+  topicContents: []
 };
 
 let lmsStateTableExists = true;
@@ -397,6 +405,14 @@ export function getDB(): DBStructure {
     let modified = false;
     if (!parsed.classes) parsed.classes = [];
     if (!parsed.subjects) parsed.subjects = [];
+    if (!parsed.topics) {
+      parsed.topics = [];
+      modified = true;
+    }
+    if (!parsed.topicContents) {
+      parsed.topicContents = [];
+      modified = true;
+    }
     
     const requiredClasses = [
       { id: 'class-1', name: '9th Grade', description: 'Secondary High School Education (Syllabus 2026)' },

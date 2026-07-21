@@ -279,17 +279,9 @@ export default function StudentNotes({ user, lang, onXPUpdated }: StudentNotesPr
                     <Eye size={12} />
                     <span>Read</span>
                   </button>
-                  {note.downloadAllowed ? (
-                    <a
-                      href={api.getFileUrl(note.id, true)}
-                      className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition-colors"
-                      title="Download PDF"
-                    >
-                      <Download size={12} />
-                    </a>
-                  ) : (
-                    <span className="text-[9px] text-gray-400 font-bold italic bg-slate-50 px-2 py-1 rounded">View Only</span>
-                  )}
+                  <span className="text-[9px] text-[#004aad] font-black uppercase bg-blue-50 px-2 py-1 rounded tracking-wider border border-blue-100">
+                    {lang === 'en' ? 'Secure View' : 'صرف پڑھیں'}
+                  </span>
                 </div>
 
                 <button

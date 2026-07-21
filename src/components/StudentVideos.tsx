@@ -216,23 +216,15 @@ export default function StudentVideos({ user, lang, onXPUpdated }: StudentVideos
                     <div className="border-t border-gray-100 pt-4 space-y-2.5">
                       <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
                         <BookOpen size={14} className="text-amber-500" />
-                        <span>Downloadable Lesson Documents</span>
+                        <span>{lang === 'en' ? 'Lesson Study Documents (Secure View Only)' : 'اسباق کے نوٹس (صرف پورٹل پر پڑھیں)'}</span>
                       </h4>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         {notes.filter(n => n.chapterId === activeVideo.chapterId).map(note => (
                           <div key={note.id} className="flex justify-between items-center p-2.5 border border-slate-100 rounded-xl bg-slate-50/50">
                             <span className="text-xs font-bold text-slate-800 truncate flex-1 pr-2">{note.title}</span>
-                            {note.downloadAllowed ? (
-                              <a
-                                href={api.getFileUrl(note.id, true)}
-                                className="p-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg shrink-0"
-                                title="Download note"
-                              >
-                                <Download size={12} />
-                              </a>
-                            ) : (
-                              <span className="text-[10px] text-gray-400 font-semibold italic">Secure View</span>
-                            )}
+                            <span className="text-[10px] text-[#004aad] font-black bg-blue-50 px-2.5 py-1 rounded border border-blue-100 uppercase tracking-wider shrink-0">
+                              {lang === 'en' ? 'Secure View' : 'صرف پڑھیں'}
+                            </span>
                           </div>
                         ))}
                       </div>

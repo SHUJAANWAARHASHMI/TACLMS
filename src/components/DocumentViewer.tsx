@@ -96,28 +96,36 @@ export default function DocumentViewer({ note, user, onClose }: DocumentViewerPr
                 Notice: This note contains copyright protected institution-only study materials. Sharing, distribution, or screenshots of this material is strictly tracked under GR code {user.grNumber}.
               </p>
               
-              <div className="space-y-4">
-                <h5 className="font-bold text-slate-900 text-sm">1. Executive Overview & Formulations</h5>
-                <p>
-                  Study notes are synthesized from recommended board guides, textbook derivations, and Sir Ali Aslam's lectures. In depth formulas have been verified with solutions for the latest semester requirements. Ensure you complete the practice assignments and take the integrated chapter MCQs to solidify these terms.
-                </p>
-                <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 font-mono text-xs text-slate-600 space-y-1">
-                  <p className="font-bold text-slate-800">// Academic Core Concept Equation Reference</p>
-                  <p>Equation (A): [V_final]^2 = [V_initial]^2 + 2 * a * d</p>
-                  <p>Equation (B): Displacement = [V_initial]*t + (1/2)*a*(t^2)</p>
-                  <p>Equation (C): F_force = mass * acceleration (Newton Second Law)</p>
+              {note.content ? (
+                <div className="prose max-w-none text-slate-800 font-sans space-y-4 leading-relaxed whitespace-pre-wrap text-left select-text" style={{ userSelect: 'text' }}>
+                  {note.content}
                 </div>
-              </div>
+              ) : (
+                <>
+                  <div className="space-y-4">
+                    <h5 className="font-bold text-slate-900 text-sm">1. Executive Overview & Formulations</h5>
+                    <p>
+                      Study notes are synthesized from recommended board guides, textbook derivations, and Sir Ali Aslam's lectures. In depth formulas have been verified with solutions for the latest semester requirements. Ensure you complete the practice assignments and take the integrated chapter MCQs to solidify these terms.
+                    </p>
+                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 font-mono text-xs text-slate-600 space-y-1">
+                      <p className="font-bold text-slate-800">// Academic Core Concept Equation Reference</p>
+                      <p>Equation (A): [V_final]^2 = [V_initial]^2 + 2 * a * d</p>
+                      <p>Equation (B): Displacement = [V_initial]*t + (1/2)*a*(t^2)</p>
+                      <p>Equation (C): F_force = mass * acceleration (Newton Second Law)</p>
+                    </div>
+                  </div>
 
-              <div className="space-y-4">
-                <h5 className="font-bold text-slate-900 text-sm">2. Solved Numerical Context</h5>
-                <p>
-                  To solve Kinematics and Dynamics board papers, split forces into components (X & Y axis) before resolving. When computing linked lists or queue logic, track the head pointer before performing insertions or recursive splits to prevent stack overflow.
-                </p>
-                <p>
-                  Read through the versions tab on notes dashboard for any amendments, and check the pinned questions in discussions if any problem appears ambiguous.
-                </p>
-              </div>
+                  <div className="space-y-4">
+                    <h5 className="font-bold text-slate-900 text-sm">2. Solved Numerical Context</h5>
+                    <p>
+                      To solve Kinematics and Dynamics board papers, split forces into components (X & Y axis) before resolving. When computing linked lists or queue logic, track the head pointer before performing insertions or recursive splits to prevent stack overflow.
+                    </p>
+                    <p>
+                      Read through the versions tab on notes dashboard for any amendments, and check the pinned questions in discussions if any problem appears ambiguous.
+                    </p>
+                  </div>
+                </>
+              )}
 
               {/* End of Page Indicator */}
               <div className="border-t border-slate-100 pt-6 mt-12 text-center text-xs text-gray-400">

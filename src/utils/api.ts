@@ -2,7 +2,7 @@
 import { 
   User, ClassRoom, Subject, Chapter, Note, Video, AccessGrant, 
   Announcement, Quiz, QuizAttempt, Assignment, AssignmentSubmission, 
-  Bookmark, Progress, AuditLog, Attendance, StudentAccess, UserCredential, Testimonial 
+  Bookmark, Progress, AuditLog, Attendance, StudentAccess, UserCredential, Testimonial, Topic, TopicContent 
 } from '../types';
 
 let currentUserId: string | null = localStorage.getItem('taclms_user_id');
@@ -451,5 +451,26 @@ export const api = {
     return apiRequest<any>(`/api/testimonials/${id}`, {
       method: 'DELETE'
     });
-  }
+  },
+
+  // --- TOPICS & TOPIC CONTENTS ---
+  getTopics: (chapterId: string) => 
+    apiRequest<Topic[]>(`/api/topics/${chapterId}`),
+
+  saveTopics: (chapterId: string, topics: Topic[]) => 
+    apiRequest<{ success: boolean; topics: Topic[] }>(`/api/topics/${chapterId}`, {
+      method: 'POST',
+      body: JSON.stringify({ topics })
+    }),
+
+  getTopicContent: (topicId: string, subjectName?: string) => {
+    const url = subjectName ? `/api/topic-content/${topicId}?subjectName=${encodeURIComponent(subjectName)}` : `/api/topic-content/${topicId}`;
+    return apiRequest<TopicContent>(url);
+  },
+
+  saveTopicContent: (topicId: string, content: TopicContent) => 
+    apiRequest<{ success: boolean; content: TopicContent }>(`/api/topic-content/${topicId}`, {
+      method: 'POST',
+      body: JSON.stringify(content)
+    })
 };

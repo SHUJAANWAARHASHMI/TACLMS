@@ -68,10 +68,15 @@ export default function AdminClasses() {
 
   const [notification, setNotification] = useState<string | null>(null);
   const [autosaveStatus, setAutosaveStatus] = useState<'saved' | 'saving' | null>('saved');
+  const [, forceUpdate] = useState(0);
 
   // Fetch hierarchy
   useEffect(() => {
     loadHierarchy();
+    const unsubscribe = topicStorage.subscribe(() => {
+      forceUpdate(f => f + 1);
+    });
+    return unsubscribe;
   }, []);
 
   const loadHierarchy = async () => {

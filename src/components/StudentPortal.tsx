@@ -4,8 +4,11 @@ import { User, ClassRoom, Subject, Chapter, Video, Note, Progress } from '../typ
 import { topicStorage } from '../utils/topicStorage';
 import { 
   Lock, BookOpen, Play, FileText, ArrowLeft, Trophy, LogOut, 
-  Facebook, Instagram, Youtube, MessageSquare, Flame, Check, HelpCircle, ChevronDown, ChevronRight
+  Facebook, Instagram, Youtube, MessageSquare, Flame, Check, HelpCircle, ChevronDown, ChevronRight,
+  Sparkles
 } from 'lucide-react';
+import AiChatbot from './AiChatbot';
+import EasyAssistant from './EasyAssistant';
 
 interface StudentPortalProps {
   user: User;
@@ -21,6 +24,7 @@ interface Topic {
 }
 
 export default function StudentPortal({ user, onLogout, onXPUpdated }: StudentPortalProps) {
+  const [isAiChatOpen, setIsAiChatOpen] = useState(false);
   // Navigation Screens
   // classes -> subjects -> chapters -> topics -> topicDetail -> progress
   const [currentScreen, setCurrentScreen] = useState<'classes' | 'subjects' | 'chapters' | 'topics' | 'topicDetail' | 'progress'>('classes');
@@ -44,6 +48,7 @@ export default function StudentPortal({ user, onLogout, onXPUpdated }: StudentPo
   const [rankings, setRankings] = useState<any[]>([]);
   const [showFullLeaderboardModal, setShowFullLeaderboardModal] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  const [, forceUpdate] = useState(0);
 
   // Interactive Content States
   const [completedKeys, setCompletedKeys] = useState<string[]>([]);
@@ -59,6 +64,69 @@ export default function StudentPortal({ user, onLogout, onXPUpdated }: StudentPo
   // Locked modal popup state
   const [lockedModalMessage, setLockedModalMessage] = useState<string | null>(null);
 
+  // History synchronization for Android Back Button and gesture behavior
+  const isHistoryNavigatingRef = React.useRef(false);
+
+  useEffect(() => {
+    // Setup initial state on mount
+    if (!window.history.state || window.history.state.screen !== 'classes') {
+      window.history.replaceState({ screen: 'classes' }, '');
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isHistoryNavigatingRef.current) {
+      isHistoryNavigatingRef.current = false;
+      return;
+    }
+    // Push a new history entry whenever currentScreen changes, unless it matches the top of the history stack
+    if (window.history.state?.screen !== currentScreen) {
+      window.history.pushState({ screen: currentScreen }, '');
+    }
+  }, [currentScreen]);
+
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      const targetScreen = event.state?.screen || 'classes';
+      isHistoryNavigatingRef.current = true;
+      
+      setFeedbackSuccess(false);
+      setFeedbackText('');
+      setShowMcqResult(false);
+      setMcqAnswers({});
+      setImportantChecked({});
+
+      if (targetScreen === 'classes') {
+        setSelectedSubject(null);
+        setSelectedChapter(null);
+        setSelectedTopic(null);
+        setActiveTile(null);
+        setCurrentScreen('classes');
+      } else if (targetScreen === 'subjects') {
+        setSelectedChapter(null);
+        setSelectedTopic(null);
+        setActiveTile(null);
+        setCurrentScreen('subjects');
+      } else if (targetScreen === 'chapters') {
+        setSelectedTopic(null);
+        setActiveTile(null);
+        setCurrentScreen('chapters');
+      } else if (targetScreen === 'topics') {
+        setActiveTile(null);
+        setCurrentScreen('topics');
+      } else if (targetScreen === 'topicDetail') {
+        setCurrentScreen('topicDetail');
+      } else if (targetScreen === 'progress') {
+        setCurrentScreen('progress');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
+
   // Navigation History list to easily handle Back Arrow consistently
   const handleBack = () => {
     setFeedbackSuccess(false);
@@ -67,20 +135,8 @@ export default function StudentPortal({ user, onLogout, onXPUpdated }: StudentPo
     setMcqAnswers({});
     setImportantChecked({});
 
-    if (currentScreen === 'topicDetail') {
-      setActiveTile(null);
-      setCurrentScreen('topics');
-    } else if (currentScreen === 'topics') {
-      setSelectedTopic(null);
-      setCurrentScreen('chapters');
-    } else if (currentScreen === 'chapters') {
-      setSelectedChapter(null);
-      setCurrentScreen('subjects');
-    } else if (currentScreen === 'subjects') {
-      setSelectedSubject(null);
-      setCurrentScreen('classes');
-    } else if (currentScreen === 'progress') {
-      setCurrentScreen('classes');
+    if (currentScreen !== 'classes') {
+      window.history.back();
     }
   };
 
@@ -153,6 +209,10 @@ export default function StudentPortal({ user, onLogout, onXPUpdated }: StudentPo
 
   useEffect(() => {
     loadAllData();
+    const unsubscribe = topicStorage.subscribe(() => {
+      forceUpdate(f => f + 1);
+    });
+    return unsubscribe;
   }, [user.id]);
 
   // Universal Lock Logic helper functions
@@ -342,94 +402,7 @@ export default function StudentPortal({ user, onLogout, onXPUpdated }: StudentPo
               </span>
             </div>
 
-            {/* Top 3 Students Celebratory Banner */}
-            {rankings && rankings.length > 0 && (
-              <div className="bg-white border-4 border-[#00175c] rounded-3xl p-6 shadow-xl shadow-[#00175c]/5 space-y-4" id="leaderboard-top3-banner">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b-2 border-[#00175c]/5 pb-3">
-                  <div>
-                    <h3 className="text-xs font-black uppercase tracking-widest text-[#00175c] flex items-center gap-1.5">
-                      🏆 Top Performers Leaderboard
-                    </h3>
-                    <p className="text-[10px] text-[#00175c]/60 font-semibold uppercase tracking-wider">
-                      Recognizing our outstanding collegiate students
-                    </p>
-                  </div>
-                  {rankings.length > 3 && (
-                    <button
-                      onClick={() => setShowFullLeaderboardModal(true)}
-                      className="text-[10px] font-black uppercase tracking-wider text-[#00175c] hover:text-[#facc15] underline transition-all cursor-pointer bg-transparent border-none p-0"
-                    >
-                      See Full Leaderboard &rarr;
-                    </button>
-                  )}
-                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end mt-4">
-                  {/* 2nd Place */}
-                  {rankings[1] && (
-                    <div className="order-2 md:order-1 bg-[#00175c]/5 border-2 border-[#00175c]/10 rounded-2xl p-4 text-center space-y-2 flex flex-col items-center">
-                      <div className="relative">
-                        <span className="absolute -top-2 -right-2 text-lg">🥈</span>
-                        <div className="w-12 h-12 rounded-full bg-[#00175c] text-white flex items-center justify-center font-black text-sm uppercase">
-                          {rankings[1].name.substring(0, 2)}
-                        </div>
-                      </div>
-                      <div>
-                        <h4 className="text-xs font-black uppercase text-[#00175c] truncate max-w-[150px]">{rankings[1].name}</h4>
-                        <p className="text-[9px] text-[#00175c]/60 font-black uppercase tracking-wider">{rankings[1].grNumber || "N/A"}</p>
-                      </div>
-                      <div className="text-[10px] font-bold bg-[#00175c] text-white px-3 py-1 rounded-full w-full">
-                        <div>{rankings[1].classesCompleted} {rankings[1].classesCompleted === 1 ? 'Course' : 'Courses'} Done</div>
-                        <div className="text-[#facc15] font-black">{rankings[1].mcqPercentage}% MCQ ({rankings[1].mcqScore} pts)</div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* 1st Place */}
-                  {rankings[0] && (
-                    <div className="order-1 md:order-2 bg-[#facc15]/15 border-4 border-[#facc15] rounded-3xl p-5 text-center space-y-2 flex flex-col items-center shadow-lg shadow-[#facc15]/10 transform md:-translate-y-2 relative">
-                      <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#facc15] text-[#00175c] text-[9px] font-black uppercase tracking-widest px-3 py-0.5 rounded-full border-2 border-white shadow-sm shrink-0">
-                        👑 Topper
-                      </div>
-                      <div className="relative mt-1">
-                        <span className="absolute -top-2 -right-2 text-xl">🥇</span>
-                        <div className="w-14 h-14 rounded-full bg-[#00175c] text-[#facc15] flex items-center justify-center font-black text-base uppercase border-4 border-[#facc15]">
-                          {rankings[0].name.substring(0, 2)}
-                        </div>
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-black uppercase text-[#00175c] truncate max-w-[180px]">{rankings[0].name}</h4>
-                        <p className="text-[9px] text-[#00175c]/60 font-black uppercase tracking-wider">{rankings[0].grNumber || "N/A"}</p>
-                      </div>
-                      <div className="text-[11px] font-black bg-[#00175c] text-white px-4 py-1.5 rounded-full w-full shadow-sm">
-                        <div>{rankings[0].classesCompleted} {rankings[0].classesCompleted === 1 ? 'Course' : 'Courses'} Done</div>
-                        <div className="text-[#facc15] font-black">{rankings[0].mcqPercentage}% MCQ ({rankings[0].mcqScore} pts)</div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* 3rd Place */}
-                  {rankings[2] && (
-                    <div className="order-3 bg-[#00175c]/5 border-2 border-[#00175c]/10 rounded-2xl p-4 text-center space-y-2 flex flex-col items-center">
-                      <div className="relative">
-                        <span className="absolute -top-2 -right-2 text-lg">🥉</span>
-                        <div className="w-12 h-12 rounded-full bg-[#00175c] text-white flex items-center justify-center font-black text-sm uppercase">
-                          {rankings[2].name.substring(0, 2)}
-                        </div>
-                      </div>
-                      <div>
-                        <h4 className="text-xs font-black uppercase text-[#00175c] truncate max-w-[150px]">{rankings[2].name}</h4>
-                        <p className="text-[9px] text-[#00175c]/60 font-black uppercase tracking-wider">{rankings[2].grNumber || "N/A"}</p>
-                      </div>
-                      <div className="text-[10px] font-bold bg-[#00175c] text-white px-3 py-1 rounded-full w-full">
-                        <div>{rankings[2].classesCompleted} {rankings[2].classesCompleted === 1 ? 'Course' : 'Courses'} Done</div>
-                        <div className="text-[#facc15] font-black">{rankings[2].mcqPercentage}% MCQ ({rankings[2].mcqScore} pts)</div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
 
             <div className="text-center sm:text-left space-y-1">
               <h2 className="text-xl font-black uppercase tracking-tight text-[#00175c]">Select Your Class</h2>
@@ -1132,6 +1105,26 @@ export default function StudentPortal({ user, onLogout, onXPUpdated }: StudentPo
                 </div>
               ))}
             </div>
+
+            {/* Back button at the bottom of the progress screen */}
+            <div className="flex justify-center pt-2 pb-6" id="progress-bottom-back-container">
+              <button
+                onClick={() => {
+                  setCurrentScreen('classes');
+                  setSelectedClass(null);
+                  setSelectedSubject(null);
+                  setSelectedChapter(null);
+                  setSelectedTopic(null);
+                  setActiveTile(null);
+                }}
+                className="flex items-center gap-2 px-8 py-3 border-4 border-[#00175c] bg-[#00175c] text-white hover:bg-white hover:text-[#00175c] rounded-2xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer shadow-lg active:scale-95"
+                id="progress-bottom-back-btn"
+              >
+                <ArrowLeft size={16} className="stroke-[2.5]" />
+                <span>Back To Home</span>
+              </button>
+            </div>
+
           </div>
         )}
 
@@ -1265,72 +1258,36 @@ export default function StudentPortal({ user, onLogout, onXPUpdated }: StudentPo
         </div>
       )}
 
-      {/* FULL LEADERBOARD MODAL */}
-      {showFullLeaderboardModal && (
-        <div className="fixed inset-0 bg-[#00175c]/65 backdrop-blur-sm z-50 flex items-center justify-center p-4 text-slate-800" id="full-leaderboard-modal">
-          <div className="bg-white border-4 border-[#00175c] rounded-3xl w-full max-w-md p-6 shadow-2xl relative animate-scale-in">
-            {/* Header */}
-            <div className="flex justify-between items-center border-b-2 border-[#00175c]/10 pb-4">
-              <div>
-                <h3 className="text-base font-black uppercase text-[#00175c] flex items-center gap-2">
-                  🏆 Full Leaderboard
-                </h3>
-                <p className="text-[10px] text-[#00175c]/60 font-semibold uppercase tracking-wider">Complete Student Rankings</p>
-              </div>
-              <button
-                onClick={() => setShowFullLeaderboardModal(false)}
-                className="bg-[#00175c]/5 hover:bg-[#00175c]/10 text-[#00175c] w-8 h-8 rounded-full flex items-center justify-center font-black text-sm cursor-pointer transition-all border-none"
-              >
-                &times;
-              </button>
-            </div>
 
-            {/* List */}
-            <div className="max-h-96 overflow-y-auto divide-y divide-[#00175c]/5 mt-4 pr-1 space-y-1">
-              {rankings.map((student, idx) => {
-                const isCurrentUser = student.id === user.id;
-                return (
-                  <div
-                    key={student.id}
-                    className={`flex items-center justify-between py-3 px-2 rounded-xl transition-all ${
-                      isCurrentUser ? 'bg-[#facc15]/15 border-2 border-[#facc15]' : ''
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="w-6 text-center text-xs font-black text-[#00175c]">
-                        {idx + 1 === 1 ? '🥇' : idx + 1 === 2 ? '🥈' : idx + 1 === 3 ? '🥉' : `#${idx + 1}`}
-                      </span>
-                      <div className="w-8 h-8 rounded-full bg-[#00175c]/10 text-[#00175c] flex items-center justify-center font-black text-xs uppercase shrink-0">
-                        {student.name.substring(0, 2)}
-                      </div>
-                      <div>
-                        <h4 className="text-xs font-black uppercase text-[#00175c] leading-tight">
-                          {student.name} {isCurrentUser && <span className="text-[9px] bg-[#00175c] text-[#facc15] px-1.5 py-0.5 rounded ml-1 font-black">YOU</span>}
-                        </h4>
-                        <p className="text-[9px] text-[#00175c]/60 font-semibold uppercase tracking-wider">{student.grNumber || "N/A"}</p>
-                      </div>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <div className="text-[10px] font-black text-[#00175c]">{student.classesCompleted} {student.classesCompleted === 1 ? 'Course' : 'Courses'}</div>
-                      <div className="text-[9px] text-[#00175c]/60 font-semibold uppercase tracking-wider">MCQ: {student.mcqPercentage}%</div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
 
-            {/* Footer */}
-            <div className="mt-6 border-t-2 border-[#00175c]/10 pt-4 flex justify-end">
-              <button
-                onClick={() => setShowFullLeaderboardModal(false)}
-                className="bg-[#00175c] hover:bg-[#00175c]/90 text-white text-xs font-black uppercase tracking-wider px-6 py-2.5 rounded-xl transition-all cursor-pointer"
-              >
-                Close
-              </button>
+      {/* FLOATING AI ASSISTANT TOGGLE BUTTON */}
+      <button
+        onClick={() => setIsAiChatOpen(true)}
+        className="fixed bottom-20 right-6 z-40 bg-[#00175c] text-[#facc15] hover:text-white border-2 border-[#facc15] hover:border-white p-3.5 rounded-full shadow-2xl hover:scale-110 transition-all cursor-pointer flex items-center gap-2 font-black text-xs uppercase tracking-wider animate-bounce"
+        style={{ animationDuration: '3s' }}
+        id="floating-ai-chat-trigger"
+      >
+        <Sparkles size={18} fill="currentColor" className="animate-pulse" />
+        <span className="hidden sm:inline">Ask AI Tutor</span>
+      </button>
+
+      {/* AI CHATBOT DRAWER OVERLAY */}
+      {isAiChatOpen && (
+        <div className="fixed inset-0 bg-[#00175c]/50 backdrop-blur-xs z-50 flex justify-end animate-fade-in text-slate-800" id="ai-chat-drawer">
+          <div className="bg-white w-full max-w-lg h-full flex flex-col shadow-2xl relative border-l-4 border-[#00175c] animate-slide-in">
+            {/* Inner Chat Container */}
+            <div className="flex-1 p-4 overflow-hidden flex flex-col h-full">
+              <AiChatbot user={user} onBack={() => setIsAiChatOpen(false)} />
             </div>
           </div>
         </div>
       )}
+
+      {/* EASY STUDY ASSISTANT FAB & DRAWER */}
+      <EasyAssistant 
+        currentSubject={selectedSubject?.name} 
+        notesText={selectedTopic ? getNotesForActiveTopic() : undefined} 
+      />
 
     </div>
   );

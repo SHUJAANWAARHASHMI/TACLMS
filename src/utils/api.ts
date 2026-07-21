@@ -56,6 +56,7 @@ async function apiRequest<T>(url: string, options: RequestInit = {}): Promise<T>
 }
 
 export const api = {
+  getApiBaseUrl,
   // --- AUTH ---
   login: async (email: string, password: string) => {
     const data = await apiRequest<{ user: User }>('/api/auth/login', {
@@ -164,6 +165,13 @@ export const api = {
     const API_BASE_URL = getApiBaseUrl();
     return `${API_BASE_URL}/api/notes/${noteId}/file${download ? '?download=true' : ''}`;
   },
+
+  // --- BRANDING ---
+  uploadLogo: (formData: FormData) =>
+    apiRequest<{ success: boolean; logoUrl: string }>('/api/branding/logo', {
+      method: 'POST',
+      body: formData
+    }),
 
   // --- VIDEOS ---
   getVideos: () => apiRequest<Video[]>('/api/videos'),

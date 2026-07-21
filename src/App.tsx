@@ -48,6 +48,13 @@ export default function App() {
   const [activeAdminTab, setActiveAdminTab] = useState<AdminTab>('dashboard');
   const [isAdminAiChatOpen, setIsAdminAiChatOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [logoUrl, setLogoUrl] = useState(() => {
+    return `${api.getApiBaseUrl()}/api/branding/logo?t=${Date.now()}`;
+  });
+
+  const handleLogoUpdated = (newUrl: string) => {
+    setLogoUrl(newUrl);
+  };
 
   // Responsive mobile menu
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -139,7 +146,7 @@ export default function App() {
   }
 
   if (!user) {
-    return <WelcomeScreen onLoginSuccess={(usr) => { setUser(usr); if (usr.role === 'student') loadStudentMetrics(usr.id); }} lang={lang} setLang={setLang} />;
+    return <WelcomeScreen onLoginSuccess={(usr) => { setUser(usr); if (usr.role === 'student') loadStudentMetrics(usr.id); }} lang={lang} setLang={setLang} logoUrl={logoUrl} />;
   }
 
   if (user.role === 'student') {
@@ -148,6 +155,7 @@ export default function App() {
         user={user} 
         onLogout={handleLogout} 
         onXPUpdated={handleXPUpdated}
+        logoUrl={logoUrl}
       />
     );
   }
@@ -162,8 +170,8 @@ export default function App() {
         <div className="p-5 space-y-6">
           {/* Institution App Brand Logo */}
           <div className="flex items-center gap-2.5">
-            <div className="bg-blue-600 text-white p-2 rounded-xl">
-              <Sparkles size={20} fill="currentColor" />
+            <div className="w-10 h-10 bg-white border border-slate-200 p-0.5 rounded-xl flex items-center justify-center overflow-hidden shadow-sm">
+              <img src={logoUrl} className="w-full h-full object-contain" alt="The Ali's Collegiate Logo" />
             </div>
             <div>
               <h1 className="text-sm font-bold font-display text-slate-900 tracking-wider">TACLMS</h1>
@@ -398,8 +406,8 @@ export default function App() {
       {/* MOBILE HEADER & DRAWER NAVIGATION */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-[#00173d] border-b border-slate-200/20 px-4 flex items-center justify-between z-40 text-white" dir="ltr">
         <div className="flex items-center gap-2">
-          <div className="bg-yellow-400 text-slate-950 p-1.5 rounded-lg shadow-sm">
-            <Sparkles size={16} fill="currentColor" />
+          <div className="w-9 h-9 bg-white p-0.5 rounded-lg shadow-sm flex items-center justify-center overflow-hidden">
+            <img src={logoUrl} className="w-full h-full object-contain" alt="The Ali's Collegiate Logo" />
           </div>
           <span className="text-sm font-black tracking-tight text-white font-display uppercase">THE ALI'S LMS</span>
         </div>
@@ -611,7 +619,7 @@ export default function App() {
               switch (activeAdminTab) {
                 
                 case 'dashboard':
-                  return <AdminDashboard />;
+                  return <AdminDashboard onLogoUpdated={handleLogoUpdated} logoUrl={logoUrl} />;
                 
                 case 'classes':
                   return <AdminClasses />;

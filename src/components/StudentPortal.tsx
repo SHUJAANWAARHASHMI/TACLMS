@@ -14,6 +14,7 @@ interface StudentPortalProps {
   user: User;
   onLogout: () => void;
   onXPUpdated: (newXp: number, newLevel: number, levelUp: boolean) => void;
+  logoUrl?: string;
 }
 
 interface Topic {
@@ -23,7 +24,7 @@ interface Topic {
   order: number;
 }
 
-export default function StudentPortal({ user, onLogout, onXPUpdated }: StudentPortalProps) {
+export default function StudentPortal({ user, onLogout, onXPUpdated, logoUrl }: StudentPortalProps) {
   const [isAiChatOpen, setIsAiChatOpen] = useState(false);
   // Navigation Screens
   // classes -> subjects -> chapters -> topics -> topicDetail -> progress
@@ -347,14 +348,14 @@ export default function StudentPortal({ user, onLogout, onXPUpdated }: StudentPo
     <div className="min-h-screen bg-white flex flex-col justify-between text-[#00175c] font-sans selection:bg-[#00175c] selection:text-white relative" id="student-portal-root">
       
       {/* HEADER SECTION (Minimal, Elegant, 3-color matching) */}
-      <header className="bg-white border-b-2 border-[#00175c] py-5 px-6 flex justify-between items-center sticky top-0 z-30" id="portal-header">
+      <header className="bg-white border-b-2 border-[#00175c] py-4 px-6 flex justify-between items-center sticky top-0 z-30" id="portal-header">
         <div className="flex items-center gap-3">
           <button 
             onClick={() => setCurrentScreen('classes')} 
-            className="bg-[#00175c] text-white p-2 rounded-xl flex items-center justify-center cursor-pointer hover:scale-105 transition-all"
+            className="w-10 h-10 bg-white border-2 border-[#00175c] p-0.5 rounded-xl flex items-center justify-center cursor-pointer hover:scale-105 transition-all overflow-hidden shadow-sm"
             id="portal-logo-home"
           >
-            <BookOpen size={20} className="stroke-[2.5]" />
+            <img src={logoUrl || "/logo.svg"} className="w-full h-full object-contain" alt="The Ali's Collegiate Logo" />
           </button>
           <div>
             <h1 className="font-black text-sm tracking-tight leading-none uppercase">

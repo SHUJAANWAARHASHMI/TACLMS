@@ -4,7 +4,7 @@ import fs from 'fs';
 import multer from 'multer';
 import bcryptjs from 'bcryptjs';
 import { createServer as createViteServer } from 'vite';
-import { getDB, saveDB, DBStructure, syncWithSupabase, supabaseStatus, saveToSupabase, ensureInit } from './server/dbStore';
+import { getDB, saveDB, DBStructure, syncWithSupabase, supabaseStatus, saveToSupabase, ensureInit, deleteFromSupabase, deleteFromSupabaseByField } from './server/dbStore';
 import { 
   User, ClassRoom, Subject, Chapter, Note, Video, AccessGrant, 
   Announcement, Quiz, QuizAttempt, Assignment, AssignmentSubmission, 
@@ -484,6 +484,63 @@ app.get('/api/auth/me', (req, res) => {
   res.json({ user });
 });
 
+// ==================== BRANDING & LOGO API ====================
+
+app.get('/api/branding/logo', (req, res) => {
+  try {
+    if (!fs.existsSync(UPLOADS_DIR)) {
+      fs.mkdirSync(UPLOADS_DIR);
+    }
+    const files = fs.readdirSync(UPLOADS_DIR);
+    const logoFile = files.find(f => f.startsWith('custom-logo.'));
+    if (logoFile) {
+      return res.sendFile(path.join(UPLOADS_DIR, logoFile));
+    }
+  } catch (err) {
+    console.error('Error finding custom logo:', err);
+  }
+  
+  const defaultPath = process.env.NODE_ENV === 'production'
+    ? path.join(process.cwd(), 'dist', 'logo.svg')
+    : path.join(process.cwd(), 'public', 'logo.svg');
+  return res.sendFile(defaultPath);
+});
+
+app.post('/api/branding/logo', requireAdmin, upload.single('logo'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No logo file provided' });
+  }
+
+  try {
+    if (!fs.existsSync(UPLOADS_DIR)) {
+      fs.mkdirSync(UPLOADS_DIR);
+    }
+    // Delete existing custom-logo.* files to avoid duplicates
+    const files = fs.readdirSync(UPLOADS_DIR);
+    for (const file of files) {
+      if (file.startsWith('custom-logo.')) {
+        try {
+          fs.unlinkSync(path.join(UPLOADS_DIR, file));
+        } catch (unlinkErr) {
+          console.warn('Could not delete old logo file:', unlinkErr);
+        }
+      }
+    }
+
+    // Rename the uploaded file to custom-logo.[ext]
+    const ext = path.extname(req.file.originalname) || '.png';
+    const newPath = path.join(UPLOADS_DIR, `custom-logo${ext}`);
+    fs.renameSync(req.file.path, newPath);
+
+    logAction((req as any).user, 'Updated Branding Logo', `custom-logo${ext}`);
+
+    return res.json({ success: true, logoUrl: `/api/branding/logo?t=${Date.now()}` });
+  } catch (err: any) {
+    console.error('Failed to save custom logo', err);
+    return res.status(500).json({ error: 'Failed to save custom logo: ' + err.message });
+  }
+});
+
 // ==================== CLASSES & SUBJECTS API ====================
 
 app.get('/api/classes', (req, res) => {
@@ -520,6 +577,11 @@ app.delete('/api/classes/:id', requireAdmin, (req, res) => {
   db.classes = db.classes.filter(c => c.id !== id);
   db.subjects = db.subjects.filter(s => s.classId !== id);
   saveDB(db);
+  
+  // Delete from Supabase tables
+  deleteFromSupabase('classes', id).catch(err => console.error(err));
+  deleteFromSupabaseByField('subjects', 'classId', id).catch(err => console.error(err));
+  
   logAction((req as any).user, 'Deleted Class', cls.name);
   res.json({ success: true, message: 'Class and its subjects deleted.' });
 });
@@ -567,6 +629,10 @@ app.delete('/api/subjects/:id', requireAdmin, (req, res) => {
   }
   db.subjects = db.subjects.filter(s => s.id !== id);
   saveDB(db);
+  
+  // Delete from Supabase
+  deleteFromSupabase('subjects', id).catch(err => console.error(err));
+  
   logAction((req as any).user, 'Deleted Subject', sub.name);
   res.json({ success: true });
 });
@@ -607,6 +673,10 @@ app.delete('/api/chapters/:id', requireAdmin, (req, res) => {
   }
   db.chapters = db.chapters.filter(c => c.id !== id);
   saveDB(db);
+  
+  // Delete from Supabase
+  deleteFromSupabase('chapters', id).catch(err => console.error(err));
+  
   logAction((req as any).user, 'Deleted Chapter', chap.title);
   res.json({ success: true });
 });
@@ -857,6 +927,10 @@ app.delete('/api/notes/:id', requireAdmin, (req, res) => {
 
   db.notes = db.notes.filter(n => n.id !== id);
   saveDB(db);
+  
+  // Delete from Supabase
+  deleteFromSupabase('notes', id).catch(err => console.error(err));
+  
   logAction((req as any).user, 'Deleted Note', note.title);
   res.json({ success: true });
 });
@@ -968,6 +1042,10 @@ app.delete('/api/videos/:id', requireAdmin, (req, res) => {
   }
   db.videos = db.videos.filter(v => v.id !== id);
   saveDB(db);
+  
+  // Delete from Supabase
+  deleteFromSupabase('videos', id).catch(err => console.error(err));
+  
   logAction((req as any).user, 'Deleted Video', vid.title);
   res.json({ success: true });
 });

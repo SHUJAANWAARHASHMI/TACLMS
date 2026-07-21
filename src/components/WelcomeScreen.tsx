@@ -161,9 +161,10 @@ interface WelcomeScreenProps {
   onLoginSuccess: (user: User) => void;
   lang: 'en' | 'ur';
   setLang: (lang: 'en' | 'ur') => void;
+  logoUrl?: string;
 }
 
-export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: WelcomeScreenProps) {
+export default function WelcomeScreen({ onLoginSuccess, lang, setLang, logoUrl }: WelcomeScreenProps) {
   const [activeTab, setActiveTab] = useState<'student' | 'admin' | 'register'>('student');
   const [classes, setClasses] = useState<ClassRoom[]>([]);
   const [showAdminTab, setShowAdminTab] = useState(false);
@@ -321,8 +322,8 @@ export default function WelcomeScreen({ onLoginSuccess, lang, setLang }: Welcome
         
         {/* Brand Logo */}
         <div className="flex items-center gap-2 cursor-pointer" id="brand-logo" onClick={() => setActiveTab('student')}>
-          <div className="bg-yellow-400 text-[#00175c] p-1.5 sm:p-2 rounded-xl flex items-center justify-center shadow-md shadow-yellow-400/20">
-            <GraduationCap size={16} className="stroke-[2.5] sm:w-[20px] sm:h-[20px]" />
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white p-0.5 rounded-xl flex items-center justify-center shadow-md shadow-yellow-400/20 overflow-hidden">
+            <img src={logoUrl || "/logo.svg"} className="w-full h-full object-contain" alt="The Ali's Collegiate Logo" />
           </div>
           <div>
             <h1 className="text-xs sm:text-sm md:text-base font-black tracking-wider font-display flex items-center gap-1">

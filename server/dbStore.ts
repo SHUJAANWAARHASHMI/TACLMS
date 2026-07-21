@@ -446,6 +446,40 @@ export function saveDB(data: DBStructure) {
   }
 }
 
+export async function deleteFromSupabase(tableName: string, id: string) {
+  try {
+    const { error } = await supabase
+      .from(tableName)
+      .delete()
+      .eq('id', id);
+    if (error) {
+      console.warn(`Could not delete from Supabase table ${tableName}:`, error.message);
+    } else {
+      console.log(`Deleted row ${id} from Supabase table '${tableName}' successfully.`);
+    }
+  } catch (err: any) {
+    console.warn(`Exception deleting from table ${tableName}:`, err.message || err);
+  }
+}
+
+export async function deleteFromSupabaseByField(tableName: string, field: string, value: any) {
+  try {
+    // Convert field to snake_case if table requires it (e.g. class_id, subject_id, etc.)
+    const snakeField = field.replace(/([A-Z])/g, "_$1").toLowerCase();
+    const { error } = await supabase
+      .from(tableName)
+      .delete()
+      .eq(snakeField, value);
+    if (error) {
+      console.warn(`Could not delete from Supabase table ${tableName} where ${snakeField} = ${value}:`, error.message);
+    } else {
+      console.log(`Deleted rows from Supabase table '${tableName}' where ${snakeField} = ${value} successfully.`);
+    }
+  } catch (err: any) {
+    console.warn(`Exception deleting from table ${tableName}:`, err.message || err);
+  }
+}
+
 export function seedDB() {
   const db = emptyDB;
 

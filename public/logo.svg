@@ -1,22 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <!-- Transparent Background container -->
+  <rect width="512" height="512" fill="none" />
 
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <!-- Rounded square background of exact brand color #00175c -->
-  <rect width="512" height="512" rx="112" fill="#00175c" />
-  
-  <!-- Subtle inner gradient or aesthetic circle backing (optional, let's keep it incredibly crisp and elegant) -->
-  <circle cx="256" cy="256" r="180" fill="#00175c" stroke="#facc15" stroke-dasharray="12 10" stroke-width="4" opacity="0.3" />
+  <!-- Shield Base Group (Centered & Balanced) -->
+  <g transform="translate(0, 0)">
+    
+    <!-- 1. Deep Blue Outer Shield Boundary (Creates external outline) -->
+    <path d="M 256 12 C 340 10 425 50 445 100 C 465 150 465 310 425 385 C 385 460 256 505 256 505 C 256 505 127 460 87 385 C 47 310 47 150 67 100 C 87 50 172 10 256 12 Z" 
+          fill="#00175c" />
 
-  <!-- Graduation Cap (golden yellow #facc15) centered in the 512x512 canvas -->
-  <g fill="#facc15" stroke="#facc15" stroke-linecap="round" stroke-linejoin="round">
-    <!-- Top Diamond Plate -->
-    <path d="M 256,120 L 440,200 L 256,280 L 72,200 Z" stroke-width="12" />
-    
-    <!-- Cap Bowl Base (thick, filled shape with rounded bottom) -->
-    <path d="M 152,245 L 152,320 C 152,370 360,370 360,320 L 360,245" stroke-width="16" fill="none" />
-    <path d="M 152,320 C 152,370 360,370 360,320" fill="#facc15" />
-    
-    <!-- Tassel String and Pendant -->
-    <path d="M 256,200 C 370,210 400,240 405,280" stroke-width="12" fill="none" />
-    <circle cx="405" cy="295" r="12" fill="#facc15" />
+    <!-- 2. Thick White Border Layer (Replicates the first white gap) -->
+    <path d="M 256 22 C 333 20 412 58 430 103 C 448 148 448 298 412 370 C 376 442 256 485 256 485 C 256 485 136 442 100 370 C 64 298 64 148 82 103 C 100 58 179 20 256 22 Z" 
+          fill="#ffffff" />
+
+    <!-- 3. Inner Navy Shield Base (Main body) -->
+    <path d="M 256 30 C 327 28 401 64 417 107 C 433 150 433 290 399 358 C 365 426 256 468 256 468 C 256 468 147 426 113 358 C 79 290 79 150 95 107 C 111 64 185 28 256 30 Z" 
+          fill="#001a6b" />
+
+    <!-- 4. Inner White Frame Line -->
+    <path d="M 256 42 C 317 40 382 74 396 113 C 410 152 410 276 380 338 C 350 400 256 438 256 438 C 256 438 162 400 132 338 C 102 276 102 152 116 113 C 130 74 195 40 256 42 Z" 
+          fill="none" stroke="#ffffff" stroke-width="6" />
+
+    <!-- 5. 3D Faceted Shading: Left Half Highlight (Slightly lighter blue) -->
+    <path d="M 256 30 C 185 28 111 64 95 107 C 79 290 79 290 113 358 C 147 426 256 468 256 468 L 256 30 Z" 
+          fill="#04268f" opacity="0.4" />
+
+    <!-- 6. Monogram Letters: "HAC" beautifully combined in White -->
+    <g fill="#ffffff" id="monogram-hac">
+      
+      <!-- LEFT STEM (Part of 'H') with top serif pointing left -->
+      <path d="M 135 190 L 190 145 L 190 340 L 145 340 L 145 205 L 135 205 Z" />
+      
+      <!-- CENTRAL 'A' SHAPE (Very tall with a sharp peak) -->
+      <!-- Outer boundary of A -->
+      <path d="M 256 100 L 315 320 L 275 320 L 256 160 L 237 320 L 197 320 Z" />
+      <!-- Horizontal Crossbar of A -->
+      <rect x="220" y="235" width="72" height="25" rx="2" />
+      <!-- Inner punch of A (cuts out of the top) -->
+      <path d="M 256 142 L 274 215 L 238 215 Z" fill="#001a6b" />
+      <!-- Left side highlight overlay for 3D A punch -->
+      <path d="M 256 142 L 256 215 L 238 215 Z" fill="#04268f" opacity="0.3" />
+
+      <!-- RIGHT 'C' SHAPE (Angular block-style collegiate C) -->
+      <path d="M 375 160 L 295 160 L 295 315 L 375 315 L 375 275 L 332 275 L 332 200 L 375 200 Z" />
+
+      <!-- Connecting middle H-bar between Left Stem and A -->
+      <rect x="185" y="235" width="40" height="25" />
+
+    </g>
+
+    <!-- 7. Open Academic Book at the Bottom of Shield -->
+    <g id="open-book">
+      
+      <!-- Bottom Base Shadow/Outline under the book -->
+      <path d="M 256 430 C 190 430 110 390 50 415 L 50 370 C 110 345 190 385 256 385 C 322 385 402 345 462 370 L 462 415 C 402 390 322 430 256 430 Z" 
+            fill="#000d36" opacity="0.6" />
+
+      <!-- Left Page Sheets (Curving outward left) -->
+      <!-- Page 3 (Back) -->
+      <path d="M 256 395 C 195 395 115 350 55 385 C 115 405 195 415 256 420 Z" fill="#e0e8ff" />
+      <!-- Page 2 (Middle) -->
+      <path d="M 256 382 C 195 382 115 338 55 372 C 115 392 195 402 256 407 Z" fill="#f0f4ff" />
+      <!-- Page 1 (Top / Main Front Page) -->
+      <path d="M 256 370 C 195 370 115 325 55 360 C 115 380 195 390 256 395 Z" fill="#ffffff" />
+      
+      <!-- Right Page Sheets (Curving outward right) -->
+      <!-- Page 3 (Back) -->
+      <path d="M 256 395 C 317 395 397 350 457 385 C 397 405 317 415 256 420 Z" fill="#e0e8ff" />
+      <!-- Page 2 (Middle) -->
+      <path d="M 256 382 C 317 382 397 338 457 372 C 397 392 317 402 256 407 Z" fill="#f0f4ff" />
+      <!-- Page 1 (Top / Main Front Page) -->
+      <path d="M 256 370 C 317 370 397 325 457 360 C 397 380 317 390 256 395 Z" fill="#ffffff" />
+
+      <!-- Book Center Spine Fold -->
+      <path d="M 254 365 L 258 365 L 258 422 L 254 422 Z" fill="#00175c" />
+      
+      <!-- Elegant Page Lines / Text Mockup on left page -->
+      <path d="M 90 365 Q 165 375 230 375" fill="none" stroke="#00175c" stroke-width="3" opacity="0.25" />
+      <path d="M 100 375 Q 165 385 230 385" fill="none" stroke="#00175c" stroke-width="3" opacity="0.25" />
+      
+      <!-- Elegant Page Lines / Text Mockup on right page -->
+      <path d="M 282 375 Q 347 385 422 365" fill="none" stroke="#00175c" stroke-width="3" opacity="0.25" />
+      <path d="M 282 385 Q 347 395 412 375" fill="none" stroke="#00175c" stroke-width="3" opacity="0.25" />
+
+    </g>
+
   </g>
 </svg>
